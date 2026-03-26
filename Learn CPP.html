@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ Quest – Full W3Schools</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#58cc02;--green-dk:#46a302;
+  --red:#ff4b4b;--red-dk:#c73232;
+  --blue:#1cb0f6;--blue-dk:#0a8fc9;
+  --yellow:#ffd900;--orange:#ff9600;
+  --purple:#a371f7;--purple-dk:#7c50d4;
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+  --border:#30363d;--text:#e6edf3;--text2:#8b949e;
+  --shadow:0 0 0 1px var(--border),0 8px 32px rgba(0,0,0,.5);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;
+}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:900;color:var(--green)}
+.logo-box{
+  width:36px;height:36px;background:var(--green);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:#fff;box-shadow:0 4px 0 var(--green-dk);
+  font-family:'JetBrains Mono',monospace;
+}
+.hstats{display:flex;gap:16px;align-items:center}
+.hstat{display:flex;align-items:center;gap:5px;font-weight:800;font-size:14px}
+.hstat.xp{color:var(--yellow)}.hstat.streak{color:var(--orange)}.hstat.hearts{color:var(--red)}
+
+/* SCREEN SYSTEM */
+#screen-map,#screen-quiz{transition:opacity .25s}
+.hidden{display:none!important}
+
+/* ===== MAP SCREEN ===== */
+.map-header{
+  max-width:800px;margin:0 auto;padding:24px 20px 8px;
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;
+}
+.map-title{font-size:24px;font-weight:900;color:var(--text)}
+.map-subtitle{font-size:14px;color:var(--text2);font-weight:600;margin-top:4px}
+.map-progress-label{font-size:13px;font-weight:800;color:var(--text2)}
+
+.path-container{max-width:800px;margin:0 auto;padding:16px 20px 60px;position:relative}
+
+.section-label{
+  display:flex;align-items:center;gap:10px;
+  font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:2px;
+  color:var(--text2);margin:28px 0 16px;
+}
+.section-label::before,.section-label::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+
+/* chapter nodes */
+.chapter-row{display:flex;justify-content:center;margin-bottom:12px}
+.chapter-node{
+  position:relative;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  width:140px;
+  transition:transform .15s;
+}
+.chapter-node:hover .node-btn{transform:translateY(-3px);box-shadow:0 8px 0 var(--node-dk)}
+.node-btn{
+  width:72px;height:72px;border-radius:50%;
+  background:var(--node-color,var(--blue));
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  box-shadow:0 5px 0 var(--node-dk,var(--blue-dk));
+  transition:all .15s;
+  position:relative;
+}
+.node-btn.locked{background:var(--bg3)!important;box-shadow:0 5px 0 #161b22!important;cursor:not-allowed}
+.node-btn.locked .node-emoji{filter:grayscale(1);opacity:.4}
+.node-btn.done{background:var(--green)!important;box-shadow:0 5px 0 var(--green-dk)!important}
+.node-btn.done::after{
+  content:'✓';position:absolute;bottom:-4px;right:-4px;
+  width:22px;height:22px;border-radius:50%;background:var(--green);
+  border:2px solid var(--bg);color:#fff;font-size:11px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+.node-label{font-size:12px;font-weight:800;color:var(--text2);text-align:center;line-height:1.3}
+.node-xp{font-size:11px;font-weight:700;color:var(--yellow)}
+.node-stars{font-size:14px}
+
+/* connector line between nodes */
+.connector{width:2px;height:24px;background:var(--border);margin:0 auto -6px;border-radius:2px}
+.connector.done-line{background:var(--green)}
+
+/* chapter tooltip */
+.chapter-tip{
+  position:absolute;top:80px;left:50%;transform:translateX(-50%);
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:12px 16px;width:200px;z-index:10;text-align:center;
+  box-shadow:var(--shadow);pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+.chapter-node:hover .chapter-tip{opacity:1}
+.chapter-tip .tip-title{font-size:13px;font-weight:800;margin-bottom:4px}
+.chapter-tip .tip-count{font-size:12px;color:var(--text2);font-weight:600}
+
+/* ===== QUIZ SCREEN ===== */
+.quiz-layout{max-width:680px;margin:0 auto;padding:20px}
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:8px 14px;font-size:13px;font-weight:700;color:var(--text2);
+  cursor:pointer;margin-bottom:16px;transition:all .15s;
+}
+.back-btn:hover{color:var(--text);border-color:var(--text2)}
+
+.progress-area{margin-bottom:20px}
+.prog-meta{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--text2);margin-bottom:6px}
+.prog-bar{height:10px;background:var(--bg3);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),#7be800);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+
+/* question card */
+.q-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:18px;
+  padding:24px;margin-bottom:16px;
+  animation:qIn .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes qIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+
+.q-type-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:99px;
+  padding:4px 12px;font-size:11px;font-weight:900;letter-spacing:1px;
+  text-transform:uppercase;color:var(--purple);margin-bottom:14px;
+}
+.q-text{font-size:18px;font-weight:800;line-height:1.5;margin-bottom:6px}
+.q-sub{font-size:13px;color:var(--text2);font-weight:600;margin-bottom:16px}
+
+/* code snippet in question */
+.code-snip{
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;
+  line-height:1.75;margin-bottom:16px;overflow-x:auto;
+  border-left:3px solid var(--purple);
+  white-space:pre;
+}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.str{color:#a5d6ff}
+.num{color:#f2cc60}.com{color:#6e7681;font-style:italic}.ty{color:#79c0ff}
+.op{color:#ff9600}
+
+/* options */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts.single{grid-template-columns:1fr}
+.opt{
+  background:var(--bg3);border:2px solid var(--border);border-radius:12px;
+  padding:14px 16px;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--text);
+  text-align:left;display:flex;align-items:center;gap:10px;
+  transition:all .15s;position:relative;overflow:hidden;
+}
+.opt:hover:not(:disabled){border-color:var(--blue);background:rgba(28,176,246,.08);transform:translateY(-1px)}
+.opt.sel{border-color:var(--blue);background:rgba(28,176,246,.1)}
+.opt.correct{border-color:var(--green);background:rgba(88,204,2,.1);animation:optCorrect .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.wrong{border-color:var(--red);background:rgba(255,75,75,.1);animation:optWrong .4s ease}
+@keyframes optCorrect{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes optWrong{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.opt-letter{
+  width:28px;height:28px;border-radius:7px;background:var(--bg);
+  border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;flex-shrink:0;transition:all .15s;
+}
+.opt.correct .opt-letter{background:var(--green);border-color:var(--green);color:#fff}
+.opt.wrong .opt-letter{background:var(--red);border-color:var(--red);color:#fff}
+.opt-code{font-family:'JetBrains Mono',monospace;font-size:12px}
+
+/* feedback */
+.feedback{
+  border-radius:14px;padding:18px 20px;margin-bottom:16px;
+  animation:fbIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes fbIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.feedback.fb-ok{background:rgba(88,204,2,.09);border:2px solid var(--green)}
+.feedback.fb-no{background:rgba(255,75,75,.09);border:2px solid var(--red)}
+.fb-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fb-icon{font-size:22px;animation:fbIcon .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes fbIcon{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1)}}
+.fb-title{font-size:17px;font-weight:900}
+.fb-ok .fb-title{color:var(--green)}.fb-no .fb-title{color:var(--red)}
+.fb-exp{font-size:13px;font-weight:600;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.fb-note{font-size:12px;font-weight:800;color:var(--yellow);margin-bottom:10px}
+
+/* demo runner */
+.demo-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.demo-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);
+}
+.demo-dots{display:flex;gap:5px}
+.demo-dots span{width:9px;height:9px;border-radius:50%}
+.demo-dots span:nth-child(1){background:#ff5f57}
+.demo-dots span:nth-child(2){background:#febc2e}
+.demo-dots span:nth-child(3){background:#28c840}
+.demo-fn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2)}
+.run-btn{
+  display:flex;align-items:center;gap:4px;
+  background:var(--green);color:#fff;border:none;border-radius:5px;
+  padding:4px 10px;font-size:11px;font-weight:800;cursor:pointer;
+  font-family:'Nunito',sans-serif;box-shadow:0 2px 0 var(--green-dk);
+  transition:all .12s;
+}
+.run-btn:hover{transform:translateY(-1px);box-shadow:0 3px 0 var(--green-dk)}
+.run-btn:active{transform:translateY(1px);box-shadow:none}
+.run-btn:disabled{background:var(--bg3);box-shadow:none;cursor:default;transform:none}
+.demo-code{
+  padding:12px 14px;font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;line-height:1.7;white-space:pre;overflow-x:auto;
+}
+.demo-div{border-top:1px solid var(--border)}
+.demo-out{
+  padding:10px 14px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--green);min-height:32px;white-space:pre-wrap;
+}
+.demo-out.err{color:var(--red)}
+.out-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--text2);display:block;margin-bottom:4px}
+.hl{background:rgba(255,255,0,.1);display:block;margin:0 -14px;padding:0 14px;border-left:3px solid var(--yellow)}
+.el{background:rgba(255,75,75,.1);display:block;margin:0 -14px;padding:0 14px;border-left:3px solid var(--red)}
+.cursor{display:inline-block;width:6px;height:13px;background:var(--green);animation:blink 1s infinite;vertical-align:text-bottom;margin-left:1px}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* CTA buttons */
+.cta{
+  width:100%;padding:16px;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;
+  border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;
+  transition:all .15s;
+}
+.cta.check{background:var(--green);color:#fff;box-shadow:0 4px 0 var(--green-dk)}
+.cta.check:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--green-dk)}
+.cta.check:active{transform:translateY(1px);box-shadow:0 1px 0 var(--green-dk)}
+.cta.check:disabled{background:var(--bg3);color:var(--text2);box-shadow:none;transform:none;cursor:default}
+.cta.next{background:var(--blue);color:#fff;box-shadow:0 4px 0 var(--blue-dk)}
+.cta.next:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--blue-dk)}
+.cta.next:active{transform:translateY(1px);box-shadow:0 1px 0 var(--blue-dk)}
+
+/* COMPLETE screen */
+.complete{text-align:center;padding:40px 20px;animation:qIn .5s cubic-bezier(.34,1.56,.64,1)}
+.trophy{font-size:72px;display:block;animation:trophyIn .6s cubic-bezier(.34,1.56,.64,1);margin-bottom:12px}
+@keyframes trophyIn{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1)}}
+.comp-title{font-size:32px;font-weight:900;color:var(--yellow);margin-bottom:6px}
+.comp-sub{font-size:14px;color:var(--text2);font-weight:700;margin-bottom:28px}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 10px}
+.sv{font-size:28px;font-weight:900;margin-bottom:4px}
+.sl{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.comp-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.comp-btn{
+  padding:14px 28px;border-radius:12px;font-family:'Nunito',sans-serif;
+  font-size:14px;font-weight:900;border:none;cursor:pointer;transition:all .15s;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.comp-btn.retry{background:var(--yellow);color:#000;box-shadow:0 4px 0 #c9a900}
+.comp-btn.retry:hover{transform:translateY(-2px);box-shadow:0 6px 0 #c9a900}
+.comp-btn.map{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.comp-btn.map:hover{border-color:var(--text2)}
+
+/* XP toast */
+.xp-toast{
+  position:fixed;top:65px;left:50%;transform:translateX(-50%);
+  background:var(--yellow);color:#000;font-weight:900;font-size:16px;
+  padding:8px 22px;border-radius:99px;pointer-events:none;z-index:999;
+  display:none;animation:xpAnim 1.4s forwards;
+}
+@keyframes xpAnim{
+  0%{opacity:0;transform:translateX(-50%) scale(.8)}
+  15%{opacity:1;transform:translateX(-50%) scale(1.1)}
+  70%{opacity:1;transform:translateX(-50%) translateY(-8px) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-24px) scale(.9)}
+}
+
+/* confetti */
+.conf-wrap{position:fixed;inset:0;pointer-events:none;z-index:998}
+.conf-p{position:absolute;top:-20px;border-radius:2px;animation:confFall linear forwards}
+@keyframes confFall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* responsive */
+@media(max-width:540px){
+  .opts{grid-template-columns:1fr}
+  .score-grid{grid-template-columns:1fr}
+  .q-text{font-size:16px}
+  .path-container{padding:12px 12px 60px}
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">C++</div>
+    C++ Quest
+  </div>
+  <div class="hstats">
+    <div class="hstat xp">⚡ <span id="h-xp">0</span> XP</div>
+    <div class="hstat streak">🔥 <span id="h-streak">0</span></div>
+    <div class="hstat hearts">❤️ <span id="h-hearts">5</span></div>
+  </div>
+</header>
+
+<!-- MAP -->
+<div id="screen-map">
+  <div class="map-header">
+    <div>
+      <div class="map-title">🗺️ Peta Belajar C++</div>
+      <div class="map-subtitle">Semua materi W3Schools C++ — dari dasar sampai OOP & STL</div>
+    </div>
+    <div class="map-progress-label" id="map-prog-label">0 / 0 chapter selesai</div>
+  </div>
+  <div class="path-container" id="path-container"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="hidden">
+  <div class="quiz-layout">
+    <button class="back-btn" onclick="goMap()">← Kembali ke Peta</button>
+    <div class="progress-area">
+      <div class="prog-meta">
+        <span id="q-counter">Soal 1 / 1</span>
+        <span id="q-chapter-name">-</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div id="q-area"></div>
+  </div>
+</div>
+
+<!-- COMPLETE -->
+<div id="screen-complete" class="hidden">
+  <div class="quiz-layout">
+    <div class="complete" id="complete-inner"></div>
+  </div>
+</div>
+
+<div class="xp-toast" id="xp-toast">+10 XP ⚡</div>
+<div class="conf-wrap" id="conf-wrap"></div>
+
+<script>
+// ================================================
+// DATA: semua chapter sesuai urutan W3Schools C++
+// ================================================
+const CHAPTERS = [
+  // ---- DASAR ----
+  {
+    id:'intro', emoji:'👋', label:'Intro & Setup', color:'#1cb0f6', colorDk:'#0a8fc9',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'C++ dikembangkan oleh siapa?',
+        code:null,
+        opts:['Dennis Ritchie','Bjarne Stroustrup','James Gosling','Guido van Rossum'],
+        ans:1,
+        exp:'C++ dibuat oleh Bjarne Stroustrup pada awal 1980-an sebagai ekstensi dari bahasa C.',
+        demo:{c:`// C++ dibuat oleh Bjarne Stroustrup\n#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, C++!" << endl;\n    return 0;\n}`,out:'Hello, C++!',hl:4,err:false},
+        wdemo:{c:`// Dennis Ritchie buat C (bukan C++)\n// James Gosling buat Java\n// Guido van Rossum buat Python`,out:'Jawaban salah!',hl:0,err:true,note:'Bjarne Stroustrup = C++, bukan yang lain!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Ekstensi file C++ yang benar adalah?',
+        code:null,
+        opts:['.c','.cpp','.cs','.cx'],
+        ans:1,
+        exp:'.cpp adalah ekstensi standar file C++. .c untuk C, .cs untuk C#.',
+        demo:{c:`// File: main.cpp\n#include <iostream>\nusing namespace std;\nint main() {\n    cout << "File .cpp benar!";\n    return 0;\n}`,out:'File .cpp benar!',hl:0,err:false},
+        wdemo:{c:`// .c adalah ekstensi C (bukan C++)\n// .cs adalah C# (bukan C++)\n// Gunakan .cpp untuk C++`,out:'Ekstensi salah!',hl:0,err:true,note:'Selalu pakai .cpp untuk file C++!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa fungsi dari `#include <iostream>`?',
+        code:`<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>\n<span class="kw">using namespace</span> <span class="ty">std</span>;`,
+        opts:['Mendefinisikan fungsi main','Mengimpor library input/output','Membuat class baru','Deklarasi variabel global'],
+        ans:1,
+        exp:'#include <iostream> mengimpor library I/O standar yang berisi cout, cin, cerr, dll.',
+        demo:{c:`#include <iostream>  // import library I/O\nusing namespace std;\nint main() {\n    cout << "iostream dipakai!";\n    return 0;\n}`,out:'iostream dipakai!',hl:0,err:false},
+        wdemo:{c:`// Tanpa #include <iostream>:\n// cout << "Hello"; // ERROR!\n// error: 'cout' was not declared`,out:'error: cout was not declared',hl:1,err:true,note:'Tanpa iostream, cout tidak dikenali compiler!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Setiap program C++ WAJIB memiliki fungsi apa?',
+        code:null,
+        opts:['start()','begin()','main()','run()'],
+        ans:2,
+        exp:'Fungsi main() adalah titik masuk (entry point) wajib setiap program C++. Eksekusi selalu dimulai dari sini.',
+        demo:{c:`#include <iostream>\nusing namespace std;\n\nint main() {  // WAJIB ada!\n    cout << "Program dimulai dari main()";\n    return 0;\n}`,out:'Program dimulai dari main()',hl:3,err:false},
+        wdemo:{c:`// Tanpa main():\n// error: undefined reference to 'main'\n// Linker tidak tahu dari mana mulai!`,out:'undefined reference to main',hl:1,err:true,note:'Setiap program C++ HARUS punya main()!'}
+      }
+    ]
+  },
+
+  {
+    id:'syntax', emoji:'📝', label:'Syntax & Output', color:'#a371f7', colorDk:'#7c50d4',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa output dari kode berikut?',
+        code:`<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>\n<span class="kw">using namespace</span> <span class="ty">std</span>;\n<span class="ty">int</span> <span class="fn">main</span>() {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Hello World!"</span>;\n    <span class="kw">return</span> <span class="num">0</span>;\n}`,
+        opts:['hello world!','Hello World!','Hello World','Error'],
+        ans:1,
+        exp:'cout mencetak teks persis seperti ditulis. C++ case-sensitive, jadi H dan W besar dipertahankan.',
+        demo:{c:`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello World!";\n    return 0;\n}`,out:'Hello World!',hl:3,err:false},
+        wdemo:{c:`// Kalau pakai huruf kecil:\ncout << "hello world!"; // beda dengan "Hello World!"\n// Output: hello world! (bukan Hello World!)`,out:'hello world!',hl:1,err:false,note:'C++ case-sensitive! H ≠ h, W ≠ w'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara pindah baris di C++?',
+        code:`<span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Baris 1"</span> <span class="op">&lt;&lt;</span> <span class="kw">???</span>;\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Baris 2"</span>;`,
+        opts:['"\\t"','endl atau "\\n"','"\\b"','newline()'],
+        ans:1,
+        exp:'endl dan "\\n" keduanya bisa digunakan untuk pindah baris. endl juga mem-flush buffer output.',
+        demo:{c:`cout << "Baris 1" << endl;\ncout << "Baris 2" << "\\n";\ncout << "Baris 3";`,out:'Baris 1\nBaris 2\nBaris 3',hl:0,err:false},
+        wdemo:{c:`// \\t adalah tab (bukan newline)\ncout << "Baris 1" << "\\t";\ncout << "Baris 2";`,out:'Baris 1    Baris 2',hl:1,err:false,note:'\\t = TAB (horizontal), bukan newline!'}
+      },
+      {
+        type:'Temukan Bug', q:'Kode ini harusnya cetak "C++ is fun!" tapi ada error. Mana yang salah?',
+        code:`<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>\n<span class="kw">using namespace</span> <span class="ty">std</span>\n<span class="ty">int</span> <span class="fn">main</span>() {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"C++ is fun!"</span>;\n    <span class="kw">return</span> <span class="num">0</span>;\n}`,
+        opts:['Kurang #include','Kurang titik koma setelah std','Salah tanda <<','cout ditulis salah'],
+        ans:1,
+        exp:'"using namespace std" harus diakhiri titik koma (;). Tanpa itu akan terjadi syntax error.',
+        demo:{c:`#include <iostream>\nusing namespace std;  // <-- titik koma wajib!\nint main() {\n    cout << "C++ is fun!";\n    return 0;\n}`,out:'C++ is fun!',hl:1,err:false},
+        wdemo:{c:`#include <iostream>\nusing namespace std  // ERROR: kurang ;\nint main() {\n    cout << "C++ is fun!";\n}`,out:'error: expected ; before int',hl:1,err:true,note:'Setiap statement di C++ harus diakhiri tanda titik koma (;)!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa output kode ini?',
+        code:`<span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Nilai: "</span> <span class="op">&lt;&lt;</span> <span class="num">5</span> <span class="op">+</span> <span class="num">3</span>;`,
+        opts:['Nilai: 5 + 3','Nilai: 53','Nilai: 8','Error'],
+        ans:2,
+        exp:'5 + 3 dihitung dulu (= 8), hasilnya dicetak. cout bisa cetak ekspresi numerik langsung.',
+        demo:{c:`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Nilai: " << 5 + 3;\n    return 0;\n}`,out:'Nilai: 8',hl:3,err:false},
+        wdemo:{c:`// Kalau mau cetak "5 + 3" sebagai teks:\ncout << "Nilai: " << "5 + 3"; // pakai tanda kutip\n// Output: Nilai: 5 + 3`,out:'Nilai: 5 + 3',hl:1,err:false,note:'Tanpa kutip = dihitung. Dengan kutip = teks literal.'}
+      }
+    ]
+  },
+
+  {
+    id:'comments', emoji:'💬', label:'Comments', color:'#6e7681', colorDk:'#484f58',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Mana yang merupakan komentar satu baris di C++?',
+        code:null,
+        opts:['/* komentar */','// komentar','# komentar','-- komentar'],
+        ans:1,
+        exp:'// digunakan untuk komentar satu baris. /* */ untuk komentar banyak baris.',
+        demo:{c:`#include <iostream>\nusing namespace std;\nint main() {\n    // Ini komentar satu baris\n    cout << "Komentar tidak dieksekusi";\n    return 0;\n}`,out:'Komentar tidak dieksekusi',hl:3,err:false},
+        wdemo:{c:`// # komentar = Python bukan C++\n// -- komentar = SQL/Ada bukan C++\n// Gunakan // atau /* */ di C++`,out:'Syntax error jika pakai # atau --',hl:0,err:true,note:'C++ hanya mengenal // dan /* */ untuk komentar!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apakah komentar dieksekusi compiler?',
+        code:`<span class="ty">int</span> x = <span class="num">5</span>; <span class="com">// x = 10 ini TIDAK dijalankan</span>\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> x;`,
+        opts:['Ya, selalu','Tidak, diabaikan compiler','Tergantung IDE','Hanya komentar /* */'],
+        ans:1,
+        exp:'Komentar sepenuhnya diabaikan compiler. Komentar hanya untuk dokumentasi dan keterbacaan kode.',
+        demo:{c:`int x = 5; // x = 10 (komentar, tidak dijalankan)\ncout << x; // mencetak 5, bukan 10`,out:'5',hl:0,err:false},
+        wdemo:{c:`// Jika komentar dieksekusi:\nint x = 5;\n// x = 10;  <- ini diabaikan\ncout << x; // tetap 5!`,out:'5',hl:2,err:false,note:'Komentar = catatan untuk programmer, compiler mengabaikannya!'}
+      }
+    ]
+  },
+
+  {
+    id:'variables', emoji:'📦', label:'Variables', color:'#ff9600', colorDk:'#cc7700',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Cara deklarasi variabel integer yang benar?',
+        code:null,
+        opts:['variable int x = 5;','int x = 5;','x int = 5;','declare int x = 5;'],
+        ans:1,
+        exp:'Sintaks deklarasi: [tipe_data] [nama_variabel] = [nilai]; Tipe data ditulis pertama.',
+        demo:{c:`#include <iostream>\nusing namespace std;\nint main() {\n    int x = 5;    // deklarasi dan inisialisasi\n    cout << x;\n    return 0;\n}`,out:'5',hl:3,err:false},
+        wdemo:{c:`// Cara salah:\nvariable int x = 5; // ERROR\nx int = 5;          // ERROR\n// Benar:\nint x = 5;          // tipe dulu, lalu nama`,out:'error: variabel salah sintaks',hl:1,err:true,note:'Tipe data selalu ditulis sebelum nama variabel!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa yang terjadi jika variabel const diubah nilainya?',
+        code:`<span class="kw">const</span> <span class="ty">int</span> MAX = <span class="num">100</span>;\nMAX = <span class="num">200</span>; <span class="com">// ???</span>`,
+        opts:['Nilainya berubah','Compile error','Warning tapi jalan','Nilai kembali ke 100'],
+        ans:1,
+        exp:'const membuat variabel tidak bisa diubah (read-only). Mencoba mengubahnya akan menyebabkan compile error.',
+        demo:{c:`const int MAX = 100;\ncout << MAX; // 100, OK!\n// MAX = 200; // ERROR jika di-uncomment`,out:'100',hl:0,err:false},
+        wdemo:{c:`const int MAX = 100;\nMAX = 200; // ERROR!\n// error: assignment of read-only variable 'MAX'`,out:"error: assignment of read-only variable 'MAX'",hl:1,err:true,note:'const = konstanta, nilai tidak boleh diubah setelah dideklarasi!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Mana nama variabel yang VALID di C++?',
+        code:null,
+        opts:['2myVar','my-var','_myVar','my var'],
+        ans:2,
+        exp:'Nama variabel C++ boleh diawali huruf atau underscore (_). Tidak boleh diawali angka, tidak boleh ada spasi atau tanda minus.',
+        demo:{c:`int _myVar = 10;   // VALID: diawali _\nint myVar2 = 20;  // VALID: angka di tengah\nint MY_VAR = 30;  // VALID: huruf besar+_\ncout << _myVar;`,out:'10',hl:0,err:false},
+        wdemo:{c:`// int 2myVar = 5;  // ERROR: diawali angka\n// int my-var = 5; // ERROR: tanda minus\n// int my var = 5; // ERROR: ada spasi`,out:"error: invalid variable name",hl:0,err:true,note:'Nama variabel: huruf/_ di awal, tidak boleh angka atau spasi!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara deklarasi beberapa variabel sekaligus?',
+        code:null,
+        opts:['int x, y, z;','int x; int y; int z; (satu-satu saja)','multi int x y z;','var x,y,z : int;'],
+        ans:0,
+        exp:'Di C++ kamu bisa deklarasi beberapa variabel tipe sama sekaligus dipisah koma: int x, y, z;',
+        demo:{c:`int x = 1, y = 2, z = 3;\ncout << x << " " << y << " " << z;`,out:'1 2 3',hl:0,err:false},
+        wdemo:{c:`// Cara verbose (tapi valid juga):\nint x = 1;\nint y = 2;\nint z = 3;\ncout << x << y << z;`,out:'123',hl:0,err:false,note:'int x,y,z; lebih singkat dari mendeklarasi satu-satu!'}
+      }
+    ]
+  },
+
+  {
+    id:'datatypes', emoji:'🔢', label:'Data Types', color:'#58cc02', colorDk:'#46a302',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Tipe data mana yang digunakan untuk bilangan desimal?',
+        code:null,
+        opts:['int','bool','double / float','char'],
+        ans:2,
+        exp:'double dan float untuk bilangan desimal. double presisi lebih tinggi (64-bit) dibanding float (32-bit).',
+        demo:{c:`double pi = 3.14159;\nfloat g = 9.8f;  // f suffix untuk float\ncout << pi << " " << g;`,out:'3.14159 9.8',hl:0,err:false},
+        wdemo:{c:`int pi = 3.14159; // SALAH! desimal dipotong\ncout << pi;       // Output: 3 (bukan 3.14159!)`,out:'3',hl:0,err:false,note:'int memotong bagian desimal! Pakai double/float untuk bilangan pecahan.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Berapa byte ukuran tipe data int pada umumnya?',
+        code:null,
+        opts:['1 byte','2 byte','4 byte','8 byte'],
+        ans:2,
+        exp:'int umumnya berukuran 4 byte (32-bit), bisa menyimpan nilai dari -2.147.483.648 sampai 2.147.483.647.',
+        demo:{c:`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "int: " << sizeof(int) << " bytes\\n";\n    cout << "double: " << sizeof(double) << " bytes\\n";\n    cout << "char: " << sizeof(char) << " byte";\n}`,out:'int: 4 bytes\ndouble: 8 bytes\nchar: 1 byte',hl:3,err:false},
+        wdemo:{c:`// sizeof() memberi tahu ukuran tipe:\n// char = 1 byte\n// int  = 4 byte\n// double = 8 byte\n// Ukuran bisa berbeda tergantung platform`,out:'Bergantung platform/compiler',hl:0,err:false,note:'Gunakan sizeof() untuk cek ukuran tipe data di sistem kamu!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa tipe data untuk menyimpan satu karakter?',
+        code:`<span class="ty">?</span> huruf = <span class="str">\'A\'</span>;\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> huruf;`,
+        opts:['string','int','char','text'],
+        ans:2,
+        exp:"char menyimpan satu karakter. Nilainya ditulis dengan tanda kutip tunggal (''). string untuk teks lebih panjang.",
+        demo:{c:`char huruf = 'A';\ncout << huruf;       // Output: A\ncout << (int)huruf;  // Output: 65 (kode ASCII)`,out:'A65',hl:0,err:false},
+        wdemo:{c:`char huruf = "A"; // ERROR! pakai kutip ganda\n// Untuk char gunakan kutip tunggal: 'A'\n// Untuk string: "Hello" (kutip ganda)`,out:"error: invalid conversion from 'const char*' to 'char'",hl:0,err:true,note:"char pakai kutip tunggal ('A'), string pakai kutip ganda (\"Hello\")!"}
+      },
+      {
+        type:'Pilihan Ganda', q:'Tipe data apa yang hanya bisa bernilai true atau false?',
+        code:null,
+        opts:['int','bit','bool','flag'],
+        ans:2,
+        exp:'bool (boolean) hanya bisa bernilai true (1) atau false (0). Sangat berguna untuk kondisi dan flag.',
+        demo:{c:`bool lulus = true;\nbool gagal = false;\ncout << lulus << " " << gagal;\n// Output: 1 0 (true=1, false=0)`,out:'1 0',hl:0,err:false},
+        wdemo:{c:`bool x = 5;  // Dianggap true (non-zero)\nbool y = 0;  // false\ncout << x << " " << y;`,out:'1 0',hl:0,err:false,note:'Non-zero = true, zero = false. bool biasanya dipakai 1 byte memori.'}
+      }
+    ]
+  },
+
+  {
+    id:'operators', emoji:'⚙️', label:'Operators', color:'#ff4b4b', colorDk:'#c73232',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa hasil dari operasi 10 % 3?',
+        code:`<span class="ty">int</span> hasil = <span class="num">10</span> <span class="op">%</span> <span class="num">3</span>;\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> hasil;`,
+        opts:['3','1','0.33','3.33'],
+        ans:1,
+        exp:'% adalah operator modulus (sisa bagi). 10 dibagi 3 = 3 sisa 1. Jadi 10 % 3 = 1.',
+        demo:{c:`int a = 10 % 3;  // 10 / 3 = 3, sisa 1\nint b = 7 % 2;   // 7 / 2 = 3, sisa 1\nint c = 8 % 4;   // 8 / 4 = 2, sisa 0\ncout << a << " " << b << " " << c;`,out:'1 1 0',hl:0,err:false},
+        wdemo:{c:`// % bukan pembagian biasa!\n// 10 % 3 bukan 3.33\n// Modulus = SISA dari pembagian bulat\n// 10 = (3 x 3) + 1  -> sisa = 1`,out:'1',hl:1,err:false,note:'% = modulo = sisa bagi. Sangat berguna untuk cek bilangan genap/ganjil!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa yang dilakukan operator ++ pada variabel?',
+        code:`<span class="ty">int</span> x = <span class="num">5</span>;\nx<span class="op">++</span>;\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> x;`,
+        opts:['Mengalikan x dengan 2','Menambah x sebesar 1','Mengurangi x sebesar 1','Pangkat 2'],
+        ans:1,
+        exp:'++ adalah increment operator, menambah nilai sebesar 1. x++ sama dengan x = x + 1.',
+        demo:{c:`int x = 5;\nx++;       // x sekarang 6\ncout << x; // Output: 6\n\nint y = 5;\ny += 1;    // sama saja\ncout << " " << y;`,out:'6 6',hl:1,err:false},
+        wdemo:{c:`// Pre-increment vs Post-increment:\nint a = 5;\ncout << a++;  // cetak 5 DULU, baru tambah\ncout << " " << a;  // sekarang 6\n\nint b = 5;\ncout << " " << ++b; // tambah DULU, lalu cetak 6`,out:'5 6 6',hl:1,err:false,note:'x++ = post-increment (cetak dulu, tambah setelah), ++x = pre-increment (tambah dulu)'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Operator mana yang digunakan untuk membandingkan dua nilai (SAMA DENGAN)?',
+        code:null,
+        opts:['=','===','==','equal()'],
+        ans:2,
+        exp:'== adalah operator perbandingan (equality). = adalah assignment (penugasan nilai). Jangan tertukar!',
+        demo:{c:`int a = 5, b = 5;\nif (a == b) {\n    cout << "a sama dengan b";\n}`,out:'a sama dengan b',hl:1,err:false},
+        wdemo:{c:`int a = 5;\nif (a = 10) {  // BUG! ini assignment, bukan perbandingan!\n    cout << "Ini selalu true!";\n    // a sekarang = 10\n}`,out:'Ini selalu true!',hl:1,err:false,note:'= (assignment) beda dengan == (comparison). Bug klasik di C++!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa hasil dari: `5 > 3 && 2 < 4`?',
+        code:null,
+        opts:['false','true','1 (hanya angka)','Error'],
+        ans:1,
+        exp:'&& adalah AND. 5>3 = true, 2<4 = true. true && true = true. Kedua kondisi harus true.',
+        demo:{c:`bool r1 = (5 > 3 && 2 < 4);  // true && true\nbool r2 = (5 > 3 && 2 > 4);  // true && false\nbool r3 = (5 < 3 || 2 < 4);  // false || true\ncout << r1 << " " << r2 << " " << r3;`,out:'1 0 1',hl:0,err:false},
+        wdemo:{c:`// Tabel kebenaran AND (&&):\n// true  && true  = true\n// true  && false = false\n// false && true  = false\n// false && false = false`,out:'Semua harus true untuk && jadi true',hl:0,err:false,note:'&& = AND (keduanya harus true). || = OR (salah satu true cukup).'}
+      }
+    ]
+  },
+
+  {
+    id:'strings', emoji:'📜', label:'Strings', color:'#1cb0f6', colorDk:'#0a8fc9',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Library apa yang harus di-include untuk menggunakan std::string?',
+        code:null,
+        opts:['<iostream>','<string>','<text>','<str>'],
+        ans:1,
+        exp:'<string> untuk std::string. Meskipun sering otomatis ikut dengan iostream, best practice tetap #include <string> eksplisit.',
+        demo:{c:`#include <iostream>\n#include <string>\nusing namespace std;\nint main() {\n    string nama = "Budi";\n    cout << "Halo, " << nama;\n}`,out:'Halo, Budi',hl:4,err:false},
+        wdemo:{c:`// Tanpa #include <string>:\n// string nama = "Budi"; // Bisa error di beberapa compiler\n// Selalu include <string> untuk keamanan!`,out:'Potensial error tanpa <string>',hl:1,err:true,note:'Selalu #include <string> saat menggunakan std::string!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara menggabungkan dua string?',
+        code:`<span class="ty">string</span> s1 = <span class="str">"Hello"</span>;\n<span class="ty">string</span> s2 = <span class="str">" World"</span>;\n<span class="ty">string</span> s3 = ???;`,
+        opts:['s1.add(s2)','s1 + s2','concat(s1,s2)','s1.join(s2)'],
+        ans:1,
+        exp:'Operator + digunakan untuk menggabungkan (concatenate) dua string di C++. Hasilnya string baru.',
+        demo:{c:`string s1 = "Hello";\nstring s2 = " World";\nstring s3 = s1 + s2;\ncout << s3;\ncout << "\\nPanjang: " << s3.length();`,out:'Hello World\nPanjang: 11',hl:2,err:false},
+        wdemo:{c:`// += juga bisa untuk append:\nstring s = "Hello";\ns += " World";\ncout << s;`,out:'Hello World',hl:1,err:false,note:'+ atau += untuk concatenation string di C++!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Method apa yang digunakan untuk mencari panjang string?',
+        code:`<span class="ty">string</span> txt = <span class="str">"Hello"</span>;\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> txt.<span class="fn">???</span>();`,
+        opts:['size() atau length()','count()','len()','strlen()'],
+        ans:0,
+        exp:'Keduanya size() dan length() mengembalikan panjang string. Keduanya identik dan sama-sama valid.',
+        demo:{c:`string txt = "Hello";\ncout << txt.length() << "\\n"; // 5\ncout << txt.size();           // 5 juga`,out:'5\n5',hl:1,err:false},
+        wdemo:{c:`// strlen() untuk C-string (char array), bukan std::string\nchar arr[] = "Hello";\ncout << strlen(arr);  // 5 (C-style)\n\n// Untuk std::string:\nstring s = "Hello";\ncout << s.length();   // 5 (C++ style)`,out:'5\n5',hl:1,err:false,note:'length() dan size() untuk std::string. strlen() untuk C-style char array.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa output dari kode berikut?',
+        code:`<span class="ty">string</span> txt = <span class="str">"Hello World"</span>;\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> txt[<span class="num">6</span>];`,
+        opts:['H','o','W','Error'],
+        ans:2,
+        exp:'String diindex dari 0. H=0,e=1,l=2,l=3,o=4,(spasi)=5,W=6. Jadi txt[6] = W.',
+        demo:{c:`string txt = "Hello World";\ncout << txt[0] << " "; // H\ncout << txt[6] << " "; // W\ncout << txt[10];       // d`,out:'H W d',hl:1,err:false},
+        wdemo:{c:`// Index: H=0 e=1 l=2 l=3 o=4 (sp)=5 W=6 o=7 r=8 l=9 d=10\nstring txt = "Hello World";\ncout << txt[4];  // o (index 4)`,out:'o',hl:1,err:false,note:'String index mulai dari 0! Hitung dari kiri: H(0)e(1)l(2)l(3)o(4)space(5)W(6)...'}
+      }
+    ]
+  },
+
+  {
+    id:'userinput', emoji:'⌨️', label:'User Input', color:'#ffd900', colorDk:'#c9a900',
+    section:'Dasar',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara membaca input dari user di C++?',
+        code:null,
+        opts:['input >> x','read(x)','cin >> x','scanf(x)'],
+        ans:2,
+        exp:'cin (character input) adalah objek standar C++ untuk membaca input keyboard. Operator >> digunakan.',
+        demo:{c:`#include <iostream>\nusing namespace std;\nint main() {\n    int angka;\n    cin >> angka;  // tunggu input user\n    cout << "Kamu masukkan: " << angka;\n}`,out:'// User ketik: 42\nKamu masukkan: 42',hl:4,err:false},
+        wdemo:{c:`// scanf adalah cara C (bukan C++ modern)\nscanf("%d", &angka);  // C-style\n\n// Lebih baik pakai cin di C++:\ncin >> angka;         // C++ style`,out:'Pakai cin untuk C++ modern',hl:1,err:false,note:'cin adalah C++ style. scanf adalah C-style. Pakai cin untuk konsistensi C++!'}
+      },
+      {
+        type:'Temukan Bug', q:'Kode untuk input nama tapi ada masalah. Kenapa nama dengan spasi tidak terbaca penuh?',
+        code:`<span class="ty">string</span> nama;\n<span class="ty">cin</span> <span class="op">&gt;&gt;</span> nama;\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> nama;`,
+        opts:['cin tidak bisa string','cin >> berhenti di spasi','Harus pakai cout untuk input','Tidak ada bug'],
+        ans:1,
+        exp:'cin >> berhenti saat ketemu spasi/newline. Untuk membaca satu baris penuh (termasuk spasi), gunakan getline(cin, nama).',
+        demo:{c:`string nama;\ngetline(cin, nama);  // baca satu baris penuh!\ncout << "Halo, " << nama;`,out:'// User ketik: Budi Santoso\nHalo, Budi Santoso',hl:1,err:false},
+        wdemo:{c:`string nama;\ncin >> nama;  // BERHENTI di spasi!\ncout << nama;\n// User ketik "Budi Santoso"\n// Output: "Budi" (hanya kata pertama!)`,out:'Budi',hl:1,err:false,note:'cin >> hanya baca sampai spasi. Pakai getline() untuk membaca nama lengkap!'}
+      }
+    ]
+  },
+
+  // ---- KONDISI ----
+  {
+    id:'conditions', emoji:'🔀', label:'If...Else', color:'#ff9600', colorDk:'#cc7700',
+    section:'Kondisi & Loop',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa output dari kode ini?',
+        code:`<span class="ty">int</span> x = <span class="num">10</span>;\n<span class="kw">if</span> (x > <span class="num">5</span>) {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Besar"</span>;\n} <span class="kw">else</span> {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Kecil"</span>;\n}`,
+        opts:['Kecil','Besar','Besar Kecil','Error'],
+        ans:1,
+        exp:'x = 10, 10 > 5 adalah true, jadi blok if dieksekusi dan mencetak "Besar".',
+        demo:{c:`int x = 10;\nif (x > 5) {\n    cout << "Besar";  // ini yang jalan\n} else {\n    cout << "Kecil";  // dilewati\n}`,out:'Besar',hl:2,err:false},
+        wdemo:{c:`int x = 3;\nif (x > 5) {      // false! (3 > 5 = false)\n    cout << "Besar";\n} else {\n    cout << "Kecil"; // ini yang jalan\n}`,out:'Kecil',hl:4,err:false,note:'Jika kondisi if false, maka blok else yang dijalankan.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Kapan blok `else if` dieksekusi?',
+        code:`<span class="kw">if</span> (nilai >= <span class="num">90</span>) { <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"A"</span>; }\n<span class="kw">else if</span> (nilai >= <span class="num">75</span>) { <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"B"</span>; }\n<span class="kw">else</span> { <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"C"</span>; }`,
+        opts:['Selalu dieksekusi','Jika kondisi if pertama false & kondisi else if true','Hanya jika kondisi pertama true','Tidak pernah'],
+        ans:1,
+        exp:'else if hanya dicek jika kondisi if sebelumnya false. Jika kondisi else if true, bloknya dijalankan.',
+        demo:{c:`int nilai = 80;\nif (nilai >= 90) {\n    cout << "A";         // false, skip\n} else if (nilai >= 75) {\n    cout << "B";         // true! ini jalan\n} else {\n    cout << "C";         // dilewati\n}`,out:'B',hl:4,err:false},
+        wdemo:{c:`int nilai = 60;\nif (nilai >= 90) {      // false\n    cout << "A";\n} else if (nilai >= 75) { // false juga\n    cout << "B";\n} else {\n    cout << "C";          // else jalan\n}`,out:'C',hl:6,err:false,note:'Urutan pengecekan: if → else if → else. Yang pertama true langsung dijalankan, sisanya dilewati.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa itu ternary operator di C++?',
+        code:`<span class="ty">int</span> x = <span class="num">10</span>;\n<span class="ty">string</span> res = (x > <span class="num">5</span>) <span class="op">?</span> <span class="str">"Besar"</span> <span class="op">:</span> <span class="str">"Kecil"</span>;`,
+        opts:['Operator untuk tiga variabel','Versi singkat dari if-else','Operator bitwise','Operator perkalian tiga'],
+        ans:1,
+        exp:'Ternary operator (?:) adalah shortcut if-else: kondisi ? nilai_jika_true : nilai_jika_false.',
+        demo:{c:`int x = 10;\nstring res = (x > 5) ? "Besar" : "Kecil";\ncout << res;\n\n// Sama dengan:\n// if(x>5) res="Besar"; else res="Kecil";`,out:'Besar',hl:1,err:false},
+        wdemo:{c:`// Ternary operator lebih singkat:\nint a = 10, b = 20;\nint max = (a > b) ? a : b;  // ambil yang lebih besar\ncout << "Max: " << max;`,out:'Max: 20',hl:2,err:false,note:'kondisi ? nilai_true : nilai_false — singkat dan sering dipakai!'}
+      }
+    ]
+  },
+
+  {
+    id:'switch', emoji:'🎛️', label:'Switch', color:'#a371f7', colorDk:'#7c50d4',
+    section:'Kondisi & Loop',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa fungsi `break` di dalam switch?',
+        code:`<span class="kw">switch</span>(x) {\n  <span class="kw">case</span> <span class="num">1</span>: <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Satu"</span>; <span class="kw">break</span>;\n  <span class="kw">case</span> <span class="num">2</span>: <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Dua"</span>; <span class="kw">break</span>;\n}`,
+        opts:['Memulai loop baru','Menghentikan eksekusi case berikutnya','Keluar dari program','Melompat ke default'],
+        ans:1,
+        exp:'break menghentikan eksekusi dan keluar dari blok switch. Tanpa break, eksekusi akan "fall through" ke case berikutnya.',
+        demo:{c:`int x = 1;\nswitch(x) {\n    case 1: cout << "Satu"; break; // keluar setelah ini\n    case 2: cout << "Dua";  break;\n    default: cout << "Lain";\n}`,out:'Satu',hl:2,err:false},
+        wdemo:{c:`int x = 1;\nswitch(x) {\n    case 1: cout << "Satu"; // TANPA break!\n    case 2: cout << "Dua";  // fall-through!\n    default: cout << "Lain"; // ini juga jalan!\n}`,out:'SatuDuaLain',hl:2,err:false,note:'Tanpa break = fall-through! Semua case setelahnya ikut dieksekusi.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Kapan blok `default` dieksekusi dalam switch?',
+        code:null,
+        opts:['Selalu pertama','Jika tidak ada case yang cocok','Selalu terakhir','Jika semua case cocok'],
+        ans:1,
+        exp:'default dieksekusi ketika tidak ada case yang nilainya cocok dengan ekspresi switch.',
+        demo:{c:`int hari = 8; // tidak ada case 8!\nswitch(hari) {\n    case 1: cout << "Senin"; break;\n    case 2: cout << "Selasa"; break;\n    default: cout << "Tidak dikenal";\n}`,out:'Tidak dikenal',hl:4,err:false},
+        wdemo:{c:`int hari = 1;\nswitch(hari) {\n    case 1: cout << "Senin"; break;\n    case 2: cout << "Selasa"; break;\n    default: cout << "Tidak dikenal"; // dilewati\n}`,out:'Senin',hl:2,err:false,note:'default = else-nya switch. Dieksekusi jika tidak ada case yang match.'}
+      }
+    ]
+  },
+
+  {
+    id:'while', emoji:'🔄', label:'While Loop', color:'#58cc02', colorDk:'#46a302',
+    section:'Kondisi & Loop',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Kapan while loop berhenti?',
+        code:`<span class="ty">int</span> i = <span class="num">0</span>;\n<span class="kw">while</span> (i < <span class="num">5</span>) {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> i <span class="op">&lt;&lt;</span> <span class="str">" "</span>;\n    i<span class="op">++</span>;\n}`,
+        opts:['Setelah 5 detik','Saat kondisi menjadi false','Saat kondisi menjadi true','Tidak pernah berhenti'],
+        ans:1,
+        exp:'while loop terus berjalan selama kondisi TRUE. Berhenti saat kondisi menjadi FALSE. Di sini berhenti saat i = 5.',
+        demo:{c:`int i = 0;\nwhile (i < 5) {\n    cout << i << " ";\n    i++;  // PENTING: increment agar tidak infinite!\n}`,out:'0 1 2 3 4',hl:1,err:false},
+        wdemo:{c:`int i = 0;\nwhile (i < 5) {\n    cout << i << " ";\n    // LUPA i++ -> INFINITE LOOP!\n    // Program hang/crash!`,out:'0 0 0 0 0 ... (infinite!)',hl:1,err:true,note:'WAJIB ada increment/decrement di dalam while loop, atau bisa infinite loop!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Perbedaan `while` dan `do...while` adalah?',
+        code:null,
+        opts:['Tidak ada perbedaan','do-while selalu dieksekusi minimal 1 kali','while lebih cepat','do-while untuk string saja'],
+        ans:1,
+        exp:'do-while mengeksekusi bloknya DULU baru cek kondisi. Jadi minimal 1 kali dieksekusi meski kondisi awal false.',
+        demo:{c:`int i = 10;\ndo {\n    cout << "Jalan sekali: " << i;\n    i++;\n} while (i < 5);  // kondisi false dari awal`,out:'Jalan sekali: 10',hl:1,err:false},
+        wdemo:{c:`int i = 10;\nwhile (i < 5) {  // kondisi false dari awal\n    cout << "Tidak pernah jalan";  // DILEWATI!\n}`,out:'(tidak ada output)',hl:1,err:false,note:'while = cek dulu baru jalan. do-while = jalan dulu baru cek. do-while minimal 1x!'}
+      }
+    ]
+  },
+
+  {
+    id:'for', emoji:'🔁', label:'For Loop', color:'#1cb0f6', colorDk:'#0a8fc9',
+    section:'Kondisi & Loop',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Berapa kali loop ini dieksekusi?',
+        code:`<span class="kw">for</span> (<span class="ty">int</span> i = <span class="num">0</span>; i < <span class="num">5</span>; i<span class="op">++</span>) {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> i;\n}`,
+        opts:['4','5','6','0'],
+        ans:1,
+        exp:'Loop dimulai i=0, jalan selama i<5 (i=0,1,2,3,4 = 5 kali). i=5 tidak dieksekusi karena 5<5 false.',
+        demo:{c:`for (int i = 0; i < 5; i++) {\n    cout << i << " ";\n}`,out:'0 1 2 3 4',hl:0,err:false},
+        wdemo:{c:`// for(init; kondisi; increment)\n// i=0: 0<5 true  -> jalankan, i++\n// i=1: 1<5 true  -> jalankan, i++\n// i=2: 2<5 true  -> jalankan, i++\n// i=3: 3<5 true  -> jalankan, i++\n// i=4: 4<5 true  -> jalankan, i++\n// i=5: 5<5 false -> BERHENTI`,out:'0 1 2 3 4\n(5 kali)',hl:0,err:false,note:'Mulai i=0 sampai i=4 (sebelum 5). Total = 5 iterasi.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa fungsi `break` di dalam loop?',
+        code:`<span class="kw">for</span> (<span class="ty">int</span> i = <span class="num">0</span>; i < <span class="num">10</span>; i<span class="op">++</span>) {\n    <span class="kw">if</span> (i == <span class="num">5</span>) <span class="kw">break</span>;\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> i <span class="op">&lt;&lt;</span> <span class="str">" "</span>;\n}`,
+        opts:['Lanjut ke iterasi berikutnya','Menghentikan loop sepenuhnya','Pause loop sementara','Restart dari awal'],
+        ans:1,
+        exp:'break menghentikan loop sepenuhnya dan melanjutkan eksekusi setelah blok loop. Output: 0 1 2 3 4.',
+        demo:{c:`for (int i = 0; i < 10; i++) {\n    if (i == 5) break;  // stop saat i=5\n    cout << i << " ";\n}`,out:'0 1 2 3 4',hl:1,err:false},
+        wdemo:{c:`// continue vs break:\nfor (int i = 0; i < 6; i++) {\n    if (i == 3) continue; // SKIP i=3, lanjut\n    cout << i << " ";\n}`,out:'0 1 2 4 5',hl:2,err:false,note:'break = hentikan loop. continue = skip iterasi ini, lanjut ke berikutnya.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa itu range-based for loop di C++?',
+        code:`<span class="ty">int</span> arr[] = {<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>};\n<span class="kw">for</span> (<span class="ty">int</span> x : arr) {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> x <span class="op">&lt;&lt;</span> <span class="str">" "</span>;\n}`,
+        opts:['Loop yang berjalan tanpa henti','Loop untuk iterasi collection otomatis','Loop dengan dua kondisi','Loop reverse'],
+        ans:1,
+        exp:'Range-based for loop (C++11) otomatis iterasi setiap elemen collection. Lebih bersih dari for biasa.',
+        demo:{c:`int arr[] = {1,2,3,4,5};\nfor (int x : arr) {  // otomatis iterasi tiap elemen\n    cout << x << " ";\n}`,out:'1 2 3 4 5',hl:1,err:false},
+        wdemo:{c:`// Cara lama (sama hasilnya):\nint arr[] = {1,2,3,4,5};\nfor (int i = 0; i < 5; i++) {\n    cout << arr[i] << " ";\n}`,out:'1 2 3 4 5',hl:2,err:false,note:'Range-based for (for x : collection) lebih ringkas dan aman dari out-of-bounds!'}
+      }
+    ]
+  },
+
+  {
+    id:'break_continue', emoji:'⏭️', label:'Break/Continue', color:'#ff4b4b', colorDk:'#c73232',
+    section:'Kondisi & Loop',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa output dari kode berikut?',
+        code:`<span class="kw">for</span> (<span class="ty">int</span> i=<span class="num">1</span>; i<=<span class="num">5</span>; i<span class="op">++</span>) {\n    <span class="kw">if</span> (i==<span class="num">3</span>) <span class="kw">continue</span>;\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> i <span class="op">&lt;&lt;</span> <span class="str">" "</span>;\n}`,
+        opts:['1 2 3 4 5','1 2 4 5','1 2 3','3 4 5'],
+        ans:1,
+        exp:'continue melewati iterasi saat i=3. Sehingga 3 tidak dicetak, tapi loop lanjut untuk 4 dan 5.',
+        demo:{c:`for (int i=1; i<=5; i++) {\n    if (i==3) continue;  // skip i=3\n    cout << i << " ";\n}`,out:'1 2 4 5',hl:1,err:false},
+        wdemo:{c:`// Bedakan break vs continue:\nfor (int i=1; i<=5; i++) {\n    if (i==3) break;  // STOP total\n    cout << i << " ";\n}`,out:'1 2',hl:2,err:false,note:'continue = skip satu iterasi. break = hentikan loop sepenuhnya.'}
+      }
+    ]
+  },
+
+  // ---- FUNCTIONS ----
+  {
+    id:'functions', emoji:'🔧', label:'Functions', color:'#58cc02', colorDk:'#46a302',
+    section:'Functions',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa keuntungan utama menggunakan function?',
+        code:null,
+        opts:['Membuat kode lebih lambat','Kode dapat digunakan ulang (reusable)','Hanya untuk OOP','Menghapus variabel'],
+        ans:1,
+        exp:'Function memungkinkan kode digunakan ulang. Tulis sekali, panggil berkali-kali. Prinsip DRY (Don\'t Repeat Yourself).',
+        demo:{c:`void sapa(string nama) {\n    cout << "Halo, " << nama << "!\\n";\n}\n\nint main() {\n    sapa("Budi");   // panggil berkali-kali\n    sapa("Ani");\n    sapa("Cici");\n}`,out:'Halo, Budi!\nHalo, Ani!\nHalo, Cici!',hl:0,err:false},
+        wdemo:{c:`// Tanpa function (pengulangan kode):\ncout << "Halo, Budi!\\n";\ncout << "Halo, Ani!\\n";\ncout << "Halo, Cici!\\n";\n// Kalau mau ubah format, harus ubah 3 tempat!`,out:'Halo, Budi!\nHalo, Ani!\nHalo, Cici!',hl:0,err:false,note:'Function = tulis sekali, pakai berkali-kali. Lebih mudah di-maintain!'}
+      },
+      {
+        type:'Temukan Bug', q:'Fungsi ini seharusnya mengembalikan hasil kali dua angka. Apa yang salah?',
+        code:`<span class="ty">int</span> <span class="fn">kali</span>(<span class="ty">int</span> a, <span class="ty">int</span> b) {\n    <span class="ty">int</span> hasil = a * b;\n}\n\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="fn">kali</span>(<span class="num">4</span>, <span class="num">5</span>);`,
+        opts:['Parameter salah','Kurang statement return','Tipe int salah','Tidak ada bug'],
+        ans:1,
+        exp:'Fungsi bertipe int HARUS menggunakan return untuk mengembalikan nilai. Tanpa return, hasilnya undefined.',
+        demo:{c:`int kali(int a, int b) {\n    int hasil = a * b;\n    return hasil;  // WAJIB return!\n}\n\ncout << kali(4, 5);`,out:'20',hl:2,err:false},
+        wdemo:{c:`int kali(int a, int b) {\n    int hasil = a * b;\n    // LUPA return! -> undefined behavior\n}\n\ncout << kali(4, 5); // output tidak terdefinisi`,out:'undefined / 0 / garbage',hl:2,err:true,note:'Fungsi non-void WAJIB return! Tanpa return = undefined behavior.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa itu function overloading?',
+        code:`<span class="ty">int</span> <span class="fn">tambah</span>(<span class="ty">int</span> a, <span class="ty">int</span> b) { <span class="kw">return</span> a+b; }\n<span class="ty">double</span> <span class="fn">tambah</span>(<span class="ty">double</span> a, <span class="ty">double</span> b) { <span class="kw">return</span> a+b; }`,
+        opts:['Memanggil function berkali-kali','Membuat dua function dengan nama sama tapi parameter berbeda','Error karena nama duplikat','Mengisi ulang nilai return'],
+        ans:1,
+        exp:'Overloading: beberapa function dengan nama sama tetapi jumlah/tipe parameter berbeda. Compiler memilih yang sesuai.',
+        demo:{c:`int tambah(int a, int b) { return a + b; }\ndouble tambah(double a, double b) { return a + b; }\n\ncout << tambah(3, 4) << "\\n";      // versi int\ncout << tambah(1.5, 2.3);         // versi double`,out:'7\n3.8',hl:0,err:false},
+        wdemo:{c:`// Compiler otomatis pilih versi yang sesuai:\ntambah(3, 4)     -> pakai int version\ntambah(1.5, 2.3) -> pakai double version\n// Ini disebut "compile-time polymorphism"`,out:'Otomatis dipilih compiler',hl:0,err:false,note:'Overloading = nama sama, signature beda. Compiler pilih yang cocok!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa itu default parameter value?',
+        code:`<span class="ty">void</span> <span class="fn">sapa</span>(<span class="ty">string</span> nama = <span class="str">"Teman"</span>) {\n    <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Halo, "</span> <span class="op">&lt;&lt;</span> nama;\n}`,
+        opts:['Nilai yang tidak bisa diubah','Nilai yang digunakan jika argumen tidak diberikan','Nilai default untuk semua variabel','Tipe data default'],
+        ans:1,
+        exp:'Default parameter adalah nilai fallback yang digunakan jika argumen tidak diberikan saat memanggil function.',
+        demo:{c:`void sapa(string nama = "Teman") {\n    cout << "Halo, " << nama << "!\\n";\n}\n\nsapa("Budi");  // override default\nsapa();        // pakai default "Teman"`,out:'Halo, Budi!\nHalo, Teman!',hl:0,err:false},
+        wdemo:{c:`// Default parameter harus di kanan:\nvoid f(int a, int b = 10, int c = 20) {} // OK\nvoid g(int a = 5, int b) {} // ERROR!\n// Default harus dari kanan ke kiri!`,out:'error: default argument missing for parameter',hl:2,err:true,note:'Default parameter selalu dari parameter KANAN. Non-default tidak boleh setelah default!'}
+      }
+    ]
+  },
+
+  // ---- ARRAYS ----
+  {
+    id:'arrays', emoji:'📊', label:'Arrays', color:'#ff9600', colorDk:'#cc7700',
+    section:'Arrays & Pointers',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa output dari kode berikut?',
+        code:`<span class="ty">int</span> arr[] = {<span class="num">10</span>,<span class="num">20</span>,<span class="num">30</span>,<span class="num">40</span>,<span class="num">50</span>};\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> arr[<span class="num">2</span>];`,
+        opts:['10','20','30','40'],
+        ans:2,
+        exp:'Array diindex mulai dari 0. arr[0]=10, arr[1]=20, arr[2]=30. Index 2 = elemen ketiga = 30.',
+        demo:{c:`int arr[] = {10,20,30,40,50};\ncout << arr[0] << " "; // 10\ncout << arr[2] << " "; // 30\ncout << arr[4];        // 50`,out:'10 30 50',hl:1,err:false},
+        wdemo:{c:`// arr[2] = elemen ke-3, bukan ke-2!\n// Index:  0   1   2   3   4\n// Value: 10  20  30  40  50\n//                 ^\n//               arr[2] = 30`,out:'30',hl:0,err:false,note:'Array C++ dimulai dari index 0! arr[2] = elemen KETIGA, bukan kedua.'}
+      },
+      {
+        type:'Temukan Bug', q:'Kode ini mengakses elemen di luar batas array. Apa masalahnya?',
+        code:`<span class="ty">int</span> arr[<span class="num">3</span>] = {<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>};\n<span class="ty">cout</span> <span class="op">&lt;&lt;</span> arr[<span class="num">3</span>];`,
+        opts:['Tidak ada masalah','arr[3] out-of-bounds, hanya valid arr[0]-arr[2]','Array harus diisi nol dulu','Deklarasi array salah'],
+        ans:1,
+        exp:'Array ukuran 3 hanya memiliki index 0, 1, 2. Mengakses arr[3] adalah out-of-bounds — undefined behavior!',
+        demo:{c:`int arr[3] = {1, 2, 3};\n// Index valid: arr[0], arr[1], arr[2]\ncout << arr[0] << " ";\ncout << arr[1] << " ";\ncout << arr[2];`,out:'1 2 3',hl:1,err:false},
+        wdemo:{c:`int arr[3] = {1, 2, 3};\ncout << arr[3]; // OUT-OF-BOUNDS!\n// Bisa: crash, output garbage, atau kebetulan jalan\n// Ini undefined behavior yang BERBAHAYA!`,out:'garbage / crash (undefined)',hl:1,err:true,note:'Array[3] = 3 elemen, index 0-2 saja! arr[3] adalah out-of-bounds = undefined behavior!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara mendapat ukuran array?',
+        code:`<span class="ty">int</span> arr[] = {<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>};\n<span class="ty">int</span> size = <span class="fn">???</span>`,
+        opts:['arr.length()','arr.size()','sizeof(arr)/sizeof(arr[0])','count(arr)'],
+        ans:2,
+        exp:'Untuk raw array, gunakan sizeof(arr)/sizeof(arr[0]). sizeof(arr) = total byte, sizeof(arr[0]) = byte per elemen.',
+        demo:{c:`int arr[] = {1,2,3,4,5};\nint size = sizeof(arr) / sizeof(arr[0]);\ncout << "Size: " << size;`,out:'Size: 5',hl:1,err:false},
+        wdemo:{c:`// sizeof(arr) = 20 byte (5 elemen * 4 byte per int)\n// sizeof(arr[0]) = 4 byte (satu int)\n// 20 / 4 = 5 elemen\n\n// Atau gunakan std::array (C++11):\n#include <array>\narray<int,5> a = {1,2,3,4,5};\ncout << a.size(); // 5`,out:'5',hl:3,err:false,note:'Raw array tidak punya .size(). Pakai sizeof/sizeof atau std::array dari <array>!'}
+      }
+    ]
+  },
+
+  {
+    id:'multidim', emoji:'🔲', label:'Multi-Dim Array', color:'#1cb0f6', colorDk:'#0a8fc9',
+    section:'Arrays & Pointers',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara deklarasi array 2D (matriks) di C++?',
+        code:null,
+        opts:['int arr[2][3];','int arr(2,3);','int arr{2,3};','int[2][3] arr;'],
+        ans:0,
+        exp:'Array 2D: int arr[baris][kolom]. arr[2][3] artinya 2 baris, 3 kolom = 6 elemen total.',
+        demo:{c:`int matrix[2][3] = {\n    {1, 2, 3},   // baris 0\n    {4, 5, 6}    // baris 1\n};\ncout << matrix[1][2]; // baris 1, kolom 2 = 6`,out:'6',hl:1,err:false},
+        wdemo:{c:`// Akses elemen: matrix[baris][kolom]\n// matrix[0][0]=1  [0][1]=2  [0][2]=3\n// matrix[1][0]=4  [1][1]=5  [1][2]=6\ncout << matrix[0][1]; // baris 0, kolom 1 = 2`,out:'2',hl:1,err:false,note:'Array 2D: [baris][kolom]. Ingat index mulai dari 0!'}
+      }
+    ]
+  },
+
+  // ---- STRUCTURES ----
+  {
+    id:'structures', emoji:'🏗️', label:'Structures', color:'#a371f7', colorDk:'#7c50d4',
+    section:'Structures & Pointers',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa itu struct di C++?',
+        code:`<span class="kw">struct</span> <span class="ty">Mahasiswa</span> {\n    <span class="ty">string</span> nama;\n    <span class="ty">int</span> nim;\n    <span class="ty">double</span> ipk;\n};`,
+        opts:['Tipe data bawaan C++','Cara membuat tipe data kustom yang mengelompokkan beberapa variabel','Sama dengan class','Array dari variabel'],
+        ans:1,
+        exp:'struct memungkinkan kamu membuat tipe data sendiri yang mengelompokkan beberapa variabel (field) terkait.',
+        demo:{c:`struct Mahasiswa {\n    string nama;\n    int nim;\n    double ipk;\n};\n\nMahasiswa mhs;\nmhs.nama = "Budi";\nmhs.nim = 12345;\nmhs.ipk = 3.75;\ncout << mhs.nama << " " << mhs.ipk;`,out:'Budi 3.75',hl:6,err:false},
+        wdemo:{c:`// Tanpa struct, harus banyak variabel terpisah:\nstring nama1 = "Budi";\nint nim1 = 12345;\ndouble ipk1 = 3.75;\n// Sulit dikelola untuk banyak mahasiswa!`,out:'Budi 12345 3.75',hl:0,err:false,note:'struct mengelompokkan data terkait. Jauh lebih rapi untuk data yang berkaitan!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa perbedaan utama struct vs class di C++?',
+        code:null,
+        opts:['struct tidak bisa punya method','struct default public, class default private','struct lebih cepat dari class','struct tidak bisa di-inherit'],
+        ans:1,
+        exp:'Perbedaan utama: member struct default public, sedangkan member class default private. Keduanya bisa punya method dan inheritance.',
+        demo:{c:`struct S { int x; };  // x public by default\nclass C { int y; };  // y private by default\n\nS s; s.x = 10;  // OK!\n// C c; c.y = 5;  // ERROR: private!`,out:'(kode berjalan, akses struct OK)',hl:0,err:false},
+        wdemo:{c:`class C {\n    int x;  // private by default!\n};\n\nC obj;\nobj.x = 5;  // ERROR: private member!`,out:'error: x is private member of C',hl:4,err:true,note:'class = private by default. struct = public by default. Beda utamanya itu!'}
+      }
+    ]
+  },
+
+  {
+    id:'enums', emoji:'📋', label:'Enumerations', color:'#ff9600', colorDk:'#cc7700',
+    section:'Structures & Pointers',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa kegunaan enum di C++?',
+        code:`<span class="kw">enum</span> <span class="ty">Hari</span> {\n    SENIN, SELASA, RABU, KAMIS, JUMAT\n};`,
+        opts:['Membuat fungsi anonim','Membuat set konstanta bernama','Mendefinisikan class','Menyimpan array'],
+        ans:1,
+        exp:'enum membuat set konstanta bernama yang lebih mudah dibaca. SENIN=0, SELASA=1, dst secara default.',
+        demo:{c:`enum Hari { SENIN, SELASA, RABU, KAMIS, JUMAT };\n\nHari hari = RABU;\ncout << hari;  // Output: 2 (index dari 0)`,out:'2',hl:2,err:false},
+        wdemo:{c:`// Tanpa enum, pakai angka magic:\nint hari = 2;  // Apa arti 2? Tidak jelas!\n\n// Dengan enum lebih readable:\nenum Hari { SENIN, SELASA, RABU };\nHari h = RABU;  // Langsung jelas!`,out:'Lebih readable dengan enum',hl:1,err:false,note:'enum membuat kode lebih readable. Hindari magic numbers!'}
+      }
+    ]
+  },
+
+  {
+    id:'pointers', emoji:'👉', label:'Pointers', color:'#ff4b4b', colorDk:'#c73232',
+    section:'Structures & Pointers',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa yang disimpan oleh pointer?',
+        code:`<span class="ty">int</span> x = <span class="num">10</span>;\n<span class="ty">int</span><span class="op">*</span> ptr = <span class="op">&amp;</span>x;`,
+        opts:['Nilai x (10)','Alamat memori dari x','Nama variabel x','Tipe data dari x'],
+        ans:1,
+        exp:'Pointer menyimpan ALAMAT MEMORI dari variabel lain. & adalah address-of operator untuk mendapat alamat.',
+        demo:{c:`int x = 10;\nint* ptr = &x;     // ptr = alamat x\ncout << ptr;       // alamat memori (misal: 0x7fff...)\ncout << "\\n" << *ptr; // dereference: nilai di alamat = 10`,out:'0x7fff5fbff5ac\n10',hl:1,err:false},
+        wdemo:{c:`int x = 10;\nint* ptr = &x;\n// ptr  = alamat memori x\n// *ptr = nilai di alamat tersebut (10)\n// &x   = alamat memori x`,out:'Pointer = alamat, *pointer = nilai',hl:1,err:false,note:'ptr = alamat. *ptr = dereference (ambil nilai di alamat itu). & = address-of.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa perbedaan pointer (*) dan reference (&) di C++?',
+        code:null,
+        opts:['Tidak ada perbedaan','Pointer bisa null & diubah arah, reference tidak bisa null & selalu ke satu variabel','Reference lebih cepat','Pointer hanya untuk int'],
+        ans:1,
+        exp:'Pointer bisa null, bisa diubah ke alamat lain, perlu dereference (*). Reference tidak bisa null, selalu alias ke satu variabel, akses langsung.',
+        demo:{c:`int x = 10, y = 20;\nint& ref = x;  // reference ke x\nref = 30;      // mengubah x menjadi 30\ncout << x;     // Output: 30`,out:'30',hl:1,err:false},
+        wdemo:{c:`int x = 10;\nint* ptr = &x;  // pointer ke x\n*ptr = 30;      // ubah nilai via dereference\ncout << x;      // Output: 30\n\n// ptr = nullptr; // pointer bisa null (berbahaya!)`,out:'30',hl:1,err:false,note:'Reference = alias aman, tidak bisa null. Pointer = alamat mentah, bisa null (berbahaya jika tidak hati-hati).'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa yang dimaksud dengan memory leak?',
+        code:`<span class="ty">int</span><span class="op">*</span> ptr = <span class="kw">new</span> <span class="ty">int</span>(<span class="num">10</span>);\n<span class="com">// ... lupa delete ptr</span>`,
+        opts:['Data yang corrupt','Memori di-allocate tapi tidak pernah di-deallocate','Pointer yang kosong','Program crash seketika'],
+        ans:1,
+        exp:'Memory leak terjadi saat memori di-allocate dengan new tapi tidak pernah di-free dengan delete. Memori terbuang percuma.',
+        demo:{c:`int* ptr = new int(10);  // allocate\n// ... gunakan ptr\ndelete ptr;  // WAJIB deallocate!\nptr = nullptr;  // best practice`,out:'(memory dibebaskan dengan benar)',hl:2,err:false},
+        wdemo:{c:`void fungsi() {\n    int* ptr = new int(10); // allocate\n    // LUPA delete ptr!\n}  // ptr hilang scope, memori bocor!\n\n// Dipanggil 1000x = leak 1000x!`,out:'Memory leak! Memori tidak pernah dibebaskan.',hl:2,err:true,note:'Selalu pasangkan new dengan delete! Atau gunakan smart pointers (unique_ptr, shared_ptr).'}
+      }
+    ]
+  },
+
+  // ---- OOP ----
+  {
+    id:'oop_intro', emoji:'🏛️', label:'OOP Intro', color:'#58cc02', colorDk:'#46a302',
+    section:'OOP',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Dalam OOP, apa itu Class?',
+        code:null,
+        opts:['Instance dari objek','Blueprint/template untuk membuat objek','Fungsi khusus','Variabel global'],
+        ans:1,
+        exp:'Class adalah blueprint (cetak biru) yang mendefinisikan attribute (data) dan method (fungsi) yang dimiliki objek.',
+        demo:{c:`class Mobil {\npublic:\n    string merk;\n    int tahun;\n    void klakson() {\n        cout << "Beep beep!";\n    }\n};\n\nMobil m;  // object dari class Mobil\nm.merk = "Toyota";\nm.klakson();`,out:'Beep beep!',hl:0,err:false},
+        wdemo:{c:`// Analogi:\n// Class = Desain/Blueprint rumah\n// Object = Rumah yang dibangun dari desain itu\n\n// Bisa bikin banyak object dari 1 class:\nMobil m1, m2, m3;  // 3 objek dari class Mobil`,out:'3 objek berbeda dari 1 class',hl:1,err:false,note:'Class = blueprint, Object = instance nyata dari blueprint tersebut!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa itu Constructor?',
+        code:`<span class="kw">class</span> <span class="ty">Kucing</span> {\n<span class="kw">public</span>:\n    <span class="fn">Kucing</span>() {\n        <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Kucing dibuat!"</span>;\n    }\n};`,
+        opts:['Method untuk menghapus objek','Method yang otomatis dipanggil saat objek dibuat','Method untuk copy objek','Method static'],
+        ans:1,
+        exp:'Constructor adalah method khusus dengan nama sama seperti class, dipanggil otomatis saat objek dibuat (instantiated).',
+        demo:{c:`class Kucing {\npublic:\n    string nama;\n    Kucing(string n) {  // constructor dengan parameter\n        nama = n;\n        cout << nama << " dibuat!\\n";\n    }\n};\n\nKucing k1("Mimi");\nKucing k2("Luna");`,out:'Mimi dibuat!\nLuna dibuat!',hl:2,err:false},
+        wdemo:{c:`// Constructor = nama sama dengan class, tanpa return type\nclass A {\npublic:\n    A() { cout << "A dibuat!"; }    // Constructor\n    ~A() { cout << "A dihapus!"; } // Destructor\n};`,out:'A dibuat!\nA dihapus!',hl:2,err:false,note:'Constructor dipanggil saat objek dibuat. Destructor (~) saat objek dihapus.'}
+      }
+    ]
+  },
+
+  {
+    id:'access', emoji:'🔒', label:'Access Specifiers', color:'#ff4b4b', colorDk:'#c73232',
+    section:'OOP',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa fungsi access specifier `private`?',
+        code:`<span class="kw">class</span> <span class="ty">Akun</span> {\n<span class="kw">private</span>:\n    <span class="ty">double</span> saldo;\n<span class="kw">public</span>:\n    <span class="ty">double</span> <span class="fn">getSaldo</span>() { <span class="kw">return</span> saldo; }\n};`,
+        opts:['Member hanya bisa diakses dari luar class','Member hanya bisa diakses dari dalam class','Member bisa diakses oleh siapa saja','Member untuk inheritance saja'],
+        ans:1,
+        exp:'private members hanya bisa diakses dari dalam class itu sendiri. Ini adalah konsep encapsulation — menyembunyikan detail implementasi.',
+        demo:{c:`class Akun {\nprivate:\n    double saldo = 1000.0;\npublic:\n    double getSaldo() { return saldo; }  // getter\n    void setSaldo(double s) { saldo = s; } // setter\n};\n\nAkun a;\ncout << a.getSaldo();  // OK via getter`,out:'1000',hl:4,err:false},
+        wdemo:{c:`class Akun {\nprivate:\n    double saldo = 1000.0;\n};\n\nAkun a;\ncout << a.saldo;  // ERROR! private!`,out:"error: 'saldo' is private member of 'Akun'",hl:5,err:true,note:'private = hanya bisa diakses di dalam class. Gunakan getter/setter untuk akses dari luar!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa prinsip OOP yang menggunakan public getter/setter untuk akses member private?',
+        code:null,
+        opts:['Inheritance','Polymorphism','Encapsulation','Abstraction'],
+        ans:2,
+        exp:'Encapsulation = menyembunyikan data (private) dan menyediakan metode publik (getter/setter) untuk mengaksesnya. Melindungi data dari modifikasi tidak valid.',
+        demo:{c:`class Suhu {\nprivate:\n    double celsius;\npublic:\n    void set(double c) {\n        if(c > -273.15) celsius = c; // validasi!\n    }\n    double get() { return celsius; }\n};\n\nSuhu s;\ns.set(36.5);\ncout << s.get();`,out:'36.5',hl:4,err:false},
+        wdemo:{c:`// Tanpa encapsulation:\nclass Suhu {\npublic:\n    double celsius;  // bisa diset sembarang!\n};\nSuhu s;\ns.celsius = -99999;  // tidak ada validasi!`,out:'-99999',hl:3,err:false,note:'Encapsulation = data private + akses via method. Bisa tambah validasi di setter!'}
+      }
+    ]
+  },
+
+  {
+    id:'inheritance', emoji:'🧬', label:'Inheritance', color:'#a371f7', colorDk:'#7c50d4',
+    section:'OOP',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa yang dimaksud dengan Inheritance (pewarisan)?',
+        code:`<span class="kw">class</span> <span class="ty">Hewan</span> {\n<span class="kw">public</span>: <span class="ty">string</span> nama;\n};\n<span class="kw">class</span> <span class="ty">Anjing</span> : <span class="kw">public</span> <span class="ty">Hewan</span> {\n<span class="kw">public</span>: <span class="ty">void</span> <span class="fn">gonggong</span>() {...}\n};`,
+        opts:['Membuat objek baru','Child class mewarisi attribute dan method dari parent class','Menghapus method','Menyalin class'],
+        ans:1,
+        exp:'Inheritance memungkinkan child class (Anjing) mewarisi semua attribute dan method public dari parent class (Hewan).',
+        demo:{c:`class Hewan {\npublic:\n    string nama = "Hewan";\n    void makan() { cout << nama << " makan\\n"; }\n};\n\nclass Anjing : public Hewan {\npublic:\n    void gonggong() { cout << "Guk guk!\\n"; }\n};\n\nAnjing d;\nd.nama = "Rex";\nd.makan();    // warisan dari Hewan\nd.gonggong(); // milik sendiri`,out:'Rex makan\nGuk guk!',hl:6,err:false},
+        wdemo:{c:`// Tanpa inheritance, harus duplikat kode:\nclass Anjing {\npublic:\n    string nama;         // duplikat!\n    void makan() {...}   // duplikat!\n    void gonggong() {...}\n};`,out:'Kode duplikat tanpa inheritance',hl:1,err:false,note:'Inheritance = reuse kode dari parent. DRY principle!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa perbedaan `public`, `protected`, `private` dalam inheritance?',
+        code:null,
+        opts:[
+          'Tidak ada perbedaan',
+          'public: diakses siapa saja, protected: child class saja, private: class sendiri',
+          'protected hanya untuk static member',
+          'public dan protected sama saja'
+        ],
+        ans:1,
+        exp:'public: semua bisa akses. protected: class itu sendiri + child class. private: hanya class itu sendiri.',
+        demo:{c:`class Base {\npublic:    int pub;     // semua bisa akses\nprotected: int prot;    // Base + child\nprivate:   int priv;    // Base saja\n};\n\nclass Child : public Base {\n    void f() {\n        pub = 1;   // OK\n        prot = 2;  // OK (protected)\n        // priv = 3; ERROR!\n    }\n};`,out:'pub dan prot accessible di Child',hl:7,err:false},
+        wdemo:{c:`class Child : public Base {\n    void f() {\n        priv = 3; // ERROR!\n        // private tidak diwarisi!\n    }\n};`,out:"error: 'priv' is private member of 'Base'",hl:2,err:true,note:'protected = accessible di class + turunan. private = tidak bisa diakses turunan!'}
+      }
+    ]
+  },
+
+  {
+    id:'polymorphism', emoji:'🦋', label:'Polymorphism', color:'#1cb0f6', colorDk:'#0a8fc9',
+    section:'OOP',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Kata kunci apa yang digunakan untuk overriding method di C++?',
+        code:`<span class="kw">class</span> <span class="ty">Shape</span> {\n<span class="kw">public</span>:\n    <span class="kw">virtual</span> <span class="ty">void</span> <span class="fn">draw</span>() { <span class="ty">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Shape"</span>; }\n};\n<span class="kw">class</span> <span class="ty">Circle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {\n    <span class="ty">void</span> <span class="fn">draw</span>() <span class="kw">override</span> {...}\n};`,
+        opts:['override','overload','virtual','extends'],
+        ans:0,
+        exp:'override (C++11) digunakan di child class untuk menandai method yang menimpa method virtual parent. Membantu deteksi error.',
+        demo:{c:`class Shape {\npublic:\n    virtual void draw() { cout << "Shape\\n"; }\n};\n\nclass Circle : public Shape {\npublic:\n    void draw() override { cout << "Circle\\n"; }\n};\n\nShape* s = new Circle();\ns->draw();  // memanggil Circle::draw()!`,out:'Circle',hl:6,err:false},
+        wdemo:{c:`// Tanpa virtual:\nclass Shape {\npublic:\n    void draw() { cout << "Shape"; } // non-virtual\n};\nclass Circle : public Shape {\npublic:\n    void draw() { cout << "Circle"; }\n};\nShape* s = new Circle();\ns->draw(); // memanggil Shape::draw() !! (salah!)`,out:'Shape',hl:9,err:false,note:'WAJIB virtual di parent agar polymorphism bekerja! Tanpa virtual = panggil versi parent, bukan child.'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa itu pure virtual function / abstract class?',
+        code:`<span class="kw">class</span> <span class="ty">Shape</span> {\n<span class="kw">public</span>:\n    <span class="kw">virtual</span> <span class="ty">void</span> <span class="fn">area</span>() = <span class="num">0</span>; <span class="com">// pure virtual</span>\n};`,
+        opts:['Function yang tidak punya body, child class WAJIB override','Function yang dijalankan 0 kali','Virtual yang nilainya 0','Function static'],
+        ans:0,
+        exp:'= 0 membuat function pure virtual. Class dengan pure virtual adalah abstract class — tidak bisa diinstansiasi langsung, child WAJIB implement.',
+        demo:{c:`class Shape {\npublic:\n    virtual double area() = 0;  // pure virtual\n};\n\nclass Lingkaran : public Shape {\npublic:\n    double r;\n    double area() override { return 3.14 * r * r; }\n};\n\nLingkaran l;\nl.r = 5;\ncout << l.area();`,out:'78.5',hl:1,err:false},
+        wdemo:{c:`class Shape {\npublic:\n    virtual double area() = 0;\n};\n\n// Shape s; // ERROR! tidak bisa instantiasi abstract class!\nShape* s = new Lingkaran(); // OK, pakai pointer ke child`,out:'error: cannot declare variable s to be of abstract type Shape',hl:4,err:true,note:'Abstract class = class dengan pure virtual. Tidak bisa dibuat objeknya langsung, hanya sebagai base!'}
+      }
+    ]
+  },
+
+  {
+    id:'exceptions', emoji:'⚠️', label:'Exceptions', color:'#ff4b4b', colorDk:'#c73232',
+    section:'OOP',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara menangani error/exception di C++?',
+        code:null,
+        opts:['if-else saja','try-catch block','error() function','die()'],
+        ans:1,
+        exp:'try-catch digunakan untuk exception handling. Kode berbahaya di try, penanganan error di catch.',
+        demo:{c:`try {\n    int a = 10, b = 0;\n    if (b == 0) throw "Division by zero!";\n    cout << a / b;\n}\ncatch (const char* e) {\n    cout << "Error: " << e;\n}`,out:'Error: Division by zero!',hl:2,err:false},
+        wdemo:{c:`// Tanpa exception handling:\nint a = 10, b = 0;\ncout << a / b;  // CRASH atau undefined behavior!\n// Program bisa langsung crash!`,out:'Floating point exception (crash)',hl:2,err:true,note:'Tanpa try-catch, exception yang tidak ditangani = crash program!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa fungsi blok `finally` di exception? (hint: C++ tidak punya finally!)',
+        code:null,
+        opts:['Selalu dieksekusi apapun yang terjadi','C++ tidak punya finally, gunakan destructor RAII','Hanya saat error','Menghapus exception'],
+        ans:1,
+        exp:'C++ tidak memiliki finally seperti Java/Python. Sebagai gantinya, gunakan pola RAII (destructor otomatis membersihkan resource).',
+        demo:{c:`// RAII: destructor sebagai "finally"\nclass Resource {\npublic:\n    Resource() { cout << "Buka resource\\n"; }\n    ~Resource() { cout << "Tutup resource\\n"; } // selalu jalan!\n};\n\nvoid fungsi() {\n    Resource r;  // destructor otomatis dipanggil\n    throw "Error!";  // meski ada exception\n}`,out:'Buka resource\nTutup resource\n(exception propagated)',hl:4,err:false},
+        wdemo:{c:`// Java/Python punya finally:\ntry { ... }\ncatch { ... }\nfinally { tutupFile(); } // di C++ ini tidak ada!\n\n// C++ pakai RAII (destructor) sebagai gantinya`,out:'C++ tidak punya finally!',hl:3,err:true,note:'C++ = RAII (destructor). Java/Python = finally. Destructor C++ lebih powerful karena otomatis!'}
+      }
+    ]
+  },
+
+  // ---- FILES ----
+  {
+    id:'files', emoji:'📁', label:'Files (fstream)', color:'#ff9600', colorDk:'#cc7700',
+    section:'Files & Advanced',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Library apa yang harus di-include untuk file I/O di C++?',
+        code:null,
+        opts:['<iostream>','<file>','<fstream>','<io>'],
+        ans:2,
+        exp:'<fstream> (file stream) berisi ofstream (output/write), ifstream (input/read), fstream (read+write).',
+        demo:{c:`#include <fstream>   // untuk file I/O\n#include <iostream>\nusing namespace std;\n\nint main() {\n    ofstream file("test.txt");  // buat/buka file\n    file << "Hello File!";       // tulis\n    file.close();                // tutup\n    cout << "File berhasil dibuat!";\n}`,out:'File berhasil dibuat!',hl:0,err:false},
+        wdemo:{c:`// Tiga class utama di <fstream>:\n// ofstream = output file (write)\n// ifstream = input file (read)\n// fstream  = kedua-duanya (read + write)`,out:'ofstream, ifstream, fstream',hl:0,err:false,note:'ofstream = write. ifstream = read. fstream = read+write. Semuanya dari <fstream>!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa yang dilakukan `file.close()` setelah selesai operasi file?',
+        code:null,
+        opts:['Menghapus file','Menutup file dan membebaskan resource','Menyimpan perubahan saja','Mengunci file'],
+        ans:1,
+        exp:'close() wajib dipanggil untuk memastikan semua data tertulis (flush buffer) dan resource OS dibebaskan.',
+        demo:{c:`ofstream file("data.txt");\nfile << "Line 1\\n";\nfile << "Line 2\\n";\nfile.close();  // flush + tutup\n\n// Membaca kembali\nifstream baca("data.txt");\nstring line;\nwhile(getline(baca, line)) {\n    cout << line << "\\n";\n}\nbaca.close();`,out:'Line 1\nLine 2',hl:3,err:false},
+        wdemo:{c:`// Tidak close = data mungkin tidak tersimpan!\nofstream file("data.txt");\nfile << "Data penting";\n// LUPA close!\n// Data mungkin masih di buffer, belum ke disk!`,out:'Data mungkin hilang tanpa close()!',hl:3,err:true,note:'Selalu close() setelah operasi file. Atau gunakan RAII (destructor otomatis close).'}
+      }
+    ]
+  },
+
+  // ---- DATA STRUCTURES / STL ----
+  {
+    id:'vectors', emoji:'🗂️', label:'Vectors', color:'#58cc02', colorDk:'#46a302',
+    section:'STL & Data Structures',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa keunggulan vector dibanding array biasa?',
+        code:null,
+        opts:['Vector lebih lambat','Vector ukurannya dinamis (bisa bertambah/berkurang)','Vector hanya untuk string','Vector tidak bisa diakses dengan index'],
+        ans:1,
+        exp:'vector adalah dynamic array — ukurannya bisa berubah saat runtime. Array biasa ukurannya fixed saat compile.',
+        demo:{c:`#include <vector>\n#include <iostream>\nusing namespace std;\n\nint main() {\n    vector<int> v;\n    v.push_back(10);  // tambah elemen\n    v.push_back(20);\n    v.push_back(30);\n    cout << "Size: " << v.size() << "\\n";\n    cout << v[1];  // akses index\n}`,out:'Size: 3\n20',hl:5,err:false},
+        wdemo:{c:`// Array biasa: ukuran fixed\nint arr[3] = {1,2,3};\n// arr.push_back(4); // ERROR! array tidak bisa!\n\n// Vector: dinamis\nvector<int> v = {1,2,3};\nv.push_back(4);  // OK! size jadi 4`,out:'push_back hanya ada di vector!',hl:5,err:false,note:'vector = dynamic array dari STL. push_back(), pop_back(), size(), resize() — lebih flexible dari array!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara menghapus elemen terakhir vector?',
+        code:null,
+        opts:['v.delete()','v.remove()','v.pop_back()','v.erase_last()'],
+        ans:2,
+        exp:'pop_back() menghapus elemen terakhir dari vector. push_back() untuk menambah, pop_back() untuk hapus dari belakang.',
+        demo:{c:`vector<int> v = {1,2,3,4,5};\nv.pop_back();  // hapus 5\ncout << v.size() << "\\n";  // 4\nfor (int x : v) cout << x << " ";`,out:'4\n1 2 3 4',hl:1,err:false},
+        wdemo:{c:`// push_back = tambah ke belakang\n// pop_back  = hapus dari belakang\nvector<int> v = {1,2,3};\nv.push_back(4); // {1,2,3,4}\nv.pop_back();   // {1,2,3}\nv.pop_back();   // {1,2}`,out:'1 2',hl:4,err:false,note:'push_back/pop_back = stack behavior dari belakang vector!'}
+      }
+    ]
+  },
+
+  {
+    id:'list', emoji:'📃', label:'List', color:'#1cb0f6', colorDk:'#0a8fc9',
+    section:'STL & Data Structures',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Kapan sebaiknya menggunakan list daripada vector?',
+        code:null,
+        opts:['Saat butuh akses index cepat','Saat sering insert/delete di tengah','Saat ukuran kecil','List selalu lebih baik'],
+        ans:1,
+        exp:'list (doubly linked list) efisien untuk insert/delete di posisi manapun O(1). Vector lambat untuk insert di tengah karena harus geser elemen O(n).',
+        demo:{c:`#include <list>\n#include <iostream>\nusing namespace std;\n\nlist<int> l = {1, 2, 4, 5};\nauto it = l.begin();\nadvance(it, 2);      // posisi sebelum 4\nl.insert(it, 3);     // insert 3 di tengah\nfor (int x : l) cout << x << " ";`,out:'1 2 3 4 5',hl:5,err:false},
+        wdemo:{c:`// Vector insert di tengah: O(n) - lambat\nvector<int> v = {1,2,4,5};\nv.insert(v.begin()+2, 3);  // geser semua elemen!\n\n// List insert di tengah: O(1) - cepat\nlist<int> l = {1,2,4,5};\nauto it = ...; l.insert(it, 3); // hanya ubah pointer`,out:'1 2 3 4 5 (keduanya)',hl:1,err:false,note:'List = fast insert/delete O(1). Vector = fast random access O(1). Pilih sesuai kebutuhan!'}
+      }
+    ]
+  },
+
+  {
+    id:'stack_queue', emoji:'📚', label:'Stack & Queue', color:'#a371f7', colorDk:'#7c50d4',
+    section:'STL & Data Structures',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa prinsip kerja Stack?',
+        code:null,
+        opts:['FIFO (First In First Out)','LIFO (Last In First Out)','Random Access','Sorted Order'],
+        ans:1,
+        exp:'Stack menggunakan prinsip LIFO — elemen terakhir yang dimasukkan adalah yang pertama dikeluarkan. Seperti tumpukan piring.',
+        demo:{c:`#include <stack>\nstack<int> s;\ns.push(1);  // tambah\ns.push(2);\ns.push(3);\ncout << s.top() << "\\n"; // lihat atas = 3\ns.pop();                  // hapus atas\ncout << s.top();          // sekarang atas = 2`,out:'3\n2',hl:1,err:false},
+        wdemo:{c:`// Stack = LIFO (Last In, First Out)\n// Seperti tumpukan buku:\n// push(1) -> [1]\n// push(2) -> [1,2]\n// push(3) -> [1,2,3]\n// pop()   -> [1,2] (3 keluar dulu)\n// top()   = 2`,out:'LIFO: 3 keluar sebelum 2, 2 sebelum 1',hl:0,err:false,note:'Stack = LIFO. Queue = FIFO. Stack seperti tumpukan, Queue seperti antrian!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Method apa yang digunakan untuk menambah elemen ke Queue?',
+        code:null,
+        opts:['push() — sama dengan stack','enqueue()','add()','insert_front()'],
+        ans:0,
+        exp:'Queue C++ STL menggunakan push() untuk tambah ke belakang dan pop() untuk hapus dari depan. Prinsip FIFO.',
+        demo:{c:`#include <queue>\nqueue<int> q;\nq.push(1);  // masuk dari belakang\nq.push(2);\nq.push(3);\ncout << q.front() << "\\n"; // depan = 1\nq.pop();                    // hapus depan\ncout << q.front();          // depan = 2`,out:'1\n2',hl:1,err:false},
+        wdemo:{c:`// Queue = FIFO (First In, First Out)\n// Seperti antrian kasir:\n// push(1) -> [1]\n// push(2) -> [1,2]\n// push(3) -> [1,2,3]\n// pop()   -> [2,3] (1 keluar dulu)\n// front() = 2`,out:'FIFO: 1 keluar sebelum 2 dan 3',hl:0,err:false,note:'Queue = FIFO (antrian). push() = masuk belakang. pop() = keluar depan.'}
+      }
+    ]
+  },
+
+  {
+    id:'sets', emoji:'🎯', label:'Sets', color:'#58cc02', colorDk:'#46a302',
+    section:'STL & Data Structures',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa keistimewaan std::set dibanding vector?',
+        code:null,
+        opts:['Set lebih cepat untuk semua operasi','Set tidak menyimpan duplikat dan otomatis terurut','Set hanya untuk integer','Set lebih hemat memori'],
+        ans:1,
+        exp:'set tidak menyimpan duplikat dan selalu terurut secara otomatis. Ideal untuk menyimpan kumpulan unik.',
+        demo:{c:`#include <set>\nset<int> s = {3,1,4,1,5,9,2,6,5,3};\n// Duplikat otomatis dihapus, urut otomatis!\nfor (int x : s) cout << x << " ";`,out:'1 2 3 4 5 6 9',hl:1,err:false},
+        wdemo:{c:`// Vector bisa duplikat, tidak urut otomatis:\nvector<int> v = {3,1,4,1,5,9,2,6,5,3};\nfor (int x : v) cout << x << " ";`,out:'3 1 4 1 5 9 2 6 5 3',hl:1,err:false,note:'set = unik + terurut otomatis. vector = boleh duplikat, urutan seperti dimasukkan.'}
+      }
+    ]
+  },
+
+  {
+    id:'maps', emoji:'🗺️', label:'Maps', color:'#ff9600', colorDk:'#cc7700',
+    section:'STL & Data Structures',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa itu std::map di C++?',
+        code:`<span class="ty">map</span>&lt;<span class="ty">string</span>, <span class="ty">int</span>&gt; nilai;\nnilai[<span class="str">"Budi"</span>] = <span class="num">90</span>;\nnilai[<span class="str">"Ani"</span>] = <span class="num">85</span>;`,
+        opts:['Array dua dimensi','Struktur data key-value pair (dictionary)','Pointer ke fungsi','Peta grafis'],
+        ans:1,
+        exp:'map adalah struktur data key-value. Seperti dictionary di Python. Key unik dan terurut secara otomatis.',
+        demo:{c:`#include <map>\nmap<string,int> nilai;\nnilai["Budi"] = 90;\nnilai["Ani"] = 85;\nnilai["Cici"] = 95;\n\n// Otomatis terurut by key (alphabetical)\nfor (auto& p : nilai) {\n    cout << p.first << ": " << p.second << "\\n";\n}`,out:'Ani: 85\nBudi: 90\nCici: 95',hl:1,err:false},
+        wdemo:{c:`// unordered_map = sama tapi TIDAK terurut\n// (tapi lebih cepat O(1) vs O(log n))\n#include <unordered_map>\nunordered_map<string,int> m;\nm["b"]=2; m["a"]=1; m["c"]=3;\nfor (auto& p:m) cout << p.first << ":" << p.second;`,out:'b:2 a:1 c:3 (atau urutan acak)',hl:1,err:false,note:'map = terurut O(log n). unordered_map = acak tapi cepat O(1). Pilih sesuai kebutuhan!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Bagaimana cara cek apakah key ada di dalam map?',
+        code:null,
+        opts:['map.has(key)','map.contains(key) atau map.find(key) != map.end()','map.exists(key)','map[key] != null'],
+        ans:1,
+        exp:'find() mengembalikan iterator ke end() jika tidak ditemukan. C++20 juga menambahkan contains() yang lebih mudah.',
+        demo:{c:`map<string,int> m;\nm["ada"] = 1;\n\nif (m.find("ada") != m.end()) {\n    cout << "Key 'ada' ditemukan!\\n";\n}\nif (m.find("tidak") == m.end()) {\n    cout << "Key 'tidak' tidak ada!";\n}`,out:"Key 'ada' ditemukan!\nKey 'tidak' tidak ada!",hl:2,err:false},
+        wdemo:{c:`// BAHAYA: mengakses key yang tidak ada\nmap<string,int> m;\nif (m["tidakada"]) {  // BUG! ini MEMBUAT key baru!\n    cout << "found";\n}\ncout << m.size();  // 1, bukan 0! (key baru terbuat)`,out:'0\n1',hl:2,err:true,note:'map[key] yang tidak ada = otomatis membuat entry baru! Gunakan find() atau contains() untuk cek!'}
+      }
+    ]
+  },
+
+  {
+    id:'iterators', emoji:'🔍', label:'Iterators', color:'#1cb0f6', colorDk:'#0a8fc9',
+    section:'STL & Data Structures',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Apa itu iterator dalam STL?',
+        code:null,
+        opts:['Loop variable','Objek yang menunjuk ke elemen dalam container','Pointer ke awal container','Fungsi sort'],
+        ans:1,
+        exp:'Iterator adalah objek yang menunjuk (pointer-like) ke elemen dalam container. Digunakan untuk traversal container STL.',
+        demo:{c:`#include <vector>\nvector<int> v = {10,20,30,40,50};\n\nfor (auto it = v.begin(); it != v.end(); ++it) {\n    cout << *it << " ";  // dereference untuk nilai\n}`,out:'10 20 30 40 50',hl:3,err:false},
+        wdemo:{c:`// begin() = iterator ke elemen pertama\n// end()   = iterator ke SETELAH elemen terakhir\n// *it     = nilai di posisi iterator\n// ++it    = maju ke elemen berikutnya\n\n// Range-based for = sugar syntax dari iterator\nfor (int x : v) cout << x; // sama tapi lebih simpel`,out:'1020304050',hl:5,err:false,note:'Iterator = cara STL untuk traversal. Range-based for adalah syntax yang lebih simpel tapi sama underlying-nya!'}
+      }
+    ]
+  },
+
+  {
+    id:'algorithms', emoji:'🧮', label:'Algorithms', color:'#a371f7', colorDk:'#7c50d4',
+    section:'STL & Data Structures',
+    questions:[
+      {
+        type:'Pilihan Ganda', q:'Library apa yang dibutuhkan untuk sort(), find(), dll?',
+        code:null,
+        opts:['<sort>','<utils>','<algorithm>','<stl>'],
+        ans:2,
+        exp:'<algorithm> berisi banyak fungsi berguna: sort(), find(), count(), reverse(), min_element(), max_element(), dll.',
+        demo:{c:`#include <algorithm>\n#include <vector>\nvector<int> v = {5,2,8,1,9,3};\n\nsort(v.begin(), v.end()); // sort ascending\nfor (int x : v) cout << x << " ";`,out:'1 2 3 5 8 9',hl:3,err:false},
+        wdemo:{c:`// sort descending dengan greater<int>():\nsort(v.begin(), v.end(), greater<int>());\n\n// find element:\nauto it = find(v.begin(), v.end(), 5);\nif (it != v.end()) cout << "found: " << *it;`,out:'found: 5',hl:3,err:false,note:'<algorithm> = toolkit berguna. sort(), find(), reverse(), count(), min/max_element(), dll!'}
+      },
+      {
+        type:'Pilihan Ganda', q:'Apa yang dilakukan std::reverse()?',
+        code:`<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; v = {<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>};\n<span class="fn">reverse</span>(v.<span class="fn">begin</span>(), v.<span class="fn">end</span>());`,
+        opts:['Sort urutan terbalik','Membalik urutan elemen dalam container','Menghapus elemen dari belakang','Reverse string saja'],
+        ans:1,
+        exp:'reverse() membalik urutan elemen antara dua iterator. {1,2,3,4,5} menjadi {5,4,3,2,1}.',
+        demo:{c:`#include <algorithm>\n#include <vector>\nvector<int> v = {1,2,3,4,5};\nreverse(v.begin(), v.end());\nfor (int x : v) cout << x << " ";`,out:'5 4 3 2 1',hl:3,err:false},
+        wdemo:{c:`// reverse() pada string juga bisa:\nstring s = "Hello";\nreverse(s.begin(), s.end());\ncout << s;`,out:'olleH',hl:2,err:false,note:'reverse() bekerja untuk vector, string, array, dan semua container yang punya bidirectional iterator!'}
+      }
+    ]
+  }
+];
+
+// ================================================
+// STATE
+// ================================================
+let xp = 0, hearts = 5, streak = 0;
+let chaptersCompleted = {};
+let curChapter = null, curQ = 0, curSel = null, curChecked = false;
+let correctCount = 0;
+
+// ================================================
+// RENDER MAP
+// ================================================
+function renderMap() {
+  const container = document.getElementById('path-container');
+  let html = '';
+  let prevSection = '';
+
+  CHAPTERS.forEach((ch, idx) => {
+    if (ch.section !== prevSection) {
+      html += `<div class="section-label">${ch.section}</div>`;
+      prevSection = ch.section;
+    }
+
+    const done = !!chaptersCompleted[ch.id];
+    const locked = idx > 0 && !chaptersCompleted[CHAPTERS[idx-1].id];
+    const stars = done ? '⭐⭐⭐' : (locked ? '🔒' : '○○○');
+
+    // connector line
+    if (idx > 0) {
+      html += `<div class="connector ${chaptersCompleted[CHAPTERS[idx-1].id] ? 'done-line' : ''}"></div>`;
+    }
+
+    // offset alternately
+    const offset = idx % 3 === 0 ? '0' : idx % 3 === 1 ? '60px' : '-60px';
+
+    html += `
+    <div class="chapter-row">
+      <div class="chapter-node" style="margin-left:${offset}" onclick="${locked ? '' : `startChapter('${ch.id}')`}">
+        <button class="node-btn ${done ? 'done' : locked ? 'locked' : ''}"
+          style="--node-color:${ch.color};--node-dk:${ch.colorDk}">
+          <span class="node-emoji">${ch.emoji}</span>
+        </button>
+        <div class="node-label">${ch.label}</div>
+        <div class="node-stars">${stars}</div>
+        <div class="chapter-tip">
+          <div class="tip-title">${ch.label}</div>
+          <div class="tip-count">${ch.questions.length} soal • ${ch.questions.length * 10} XP</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+
+  // update counter
+  const done = Object.keys(chaptersCompleted).length;
+  document.getElementById('map-prog-label').textContent = `${done} / ${CHAPTERS.length} chapter selesai`;
+}
+
+// ================================================
+// START CHAPTER
+// ================================================
+function startChapter(id) {
+  curChapter = CHAPTERS.find(c => c.id === id);
+  curQ = 0; curSel = null; curChecked = false; correctCount = 0;
+  document.getElementById('q-chapter-name').textContent = curChapter.emoji + ' ' + curChapter.label;
+  show('quiz');
+  renderQ();
+}
+
+// ================================================
+// RENDER QUESTION
+// ================================================
+function renderQ() {
+  const q = curChapter.questions[curQ];
+  const total = curChapter.questions.length;
+  const pct = (curQ / total) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Soal ${curQ+1} / ${total}`;
+
+  const letters = ['A','B','C','D'];
+  const isSingle = q.opts.some(o => o.length > 30);
+  const optsHtml = q.opts.map((opt, i) => `
+    <button class="opt" id="opt-${i}" onclick="selOpt(${i})">
+      <span class="opt-letter">${letters[i]}</span>
+      <span class="${isCodeText(opt) ? 'opt-code' : ''}">${esc(opt)}</span>
+    </button>`).join('');
+
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-type-badge">📌 ${q.type}</div>
+      <div class="q-text">${q.q}</div>
+      ${q.code ? `<div class="code-snip">${q.code}</div>` : ''}
+      <div class="opts ${isSingle ? 'single' : ''}" id="opts-wrap">${optsHtml}</div>
+    </div>
+    <div id="fb-area"></div>
+    <button class="cta check" id="cta" disabled onclick="checkAns()">CEK JAWABAN ✓</button>
+  `;
+}
+
+function isCodeText(s) { return /[{}<>()=;*&]/.test(s); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ================================================
+// SELECT OPTION
+// ================================================
+function selOpt(i) {
+  if (curChecked) return;
+  curSel = i;
+  document.querySelectorAll('.opt').forEach((b,idx) => b.classList.toggle('sel', idx===i));
+  document.getElementById('cta').disabled = false;
+}
+
+// ================================================
+// CHECK ANSWER
+// ================================================
+function checkAns() {
+  if (curSel === null || curChecked) return;
+  curChecked = true;
+  const q = curChapter.questions[curQ];
+  const right = curSel === q.ans;
+
+  document.getElementById(`opt-${q.ans}`).classList.add('correct');
+  if (!right) document.getElementById(`opt-${curSel}`).classList.add('wrong');
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+
+  if (right) {
+    xp += 10; streak++; correctCount++;
+    document.getElementById('h-xp').textContent = xp;
+    document.getElementById('h-streak').textContent = streak;
+    showXpToast();
+  } else {
+    hearts = Math.max(0, hearts - 1);
+    streak = 0;
+    document.getElementById('h-hearts').textContent = hearts;
+    document.getElementById('h-streak').textContent = 0;
+  }
+
+  showFeedback(right, q);
+  const cta = document.getElementById('cta');
+  const isLast = curQ >= curChapter.questions.length - 1;
+  cta.className = 'cta next';
+  cta.textContent = isLast ? 'SELESAI 🏆' : 'LANJUT →';
+  cta.onclick = nextQ;
+}
+
+// ================================================
+// FEEDBACK + DEMO
+// ================================================
+function showFeedback(right, q) {
+  const fb = document.getElementById('fb-area');
+  const demo = right ? q.demo : q.wdemo;
+  const lines = demo.c.split('\n');
+  const codeHtml = lines.map((line, i) => {
+    const e = esc(line);
+    if (i === demo.hl) return `<span class="${right ? 'hl' : 'el'}">${e}</span>`;
+    return e;
+  }).join('\n');
+
+  const noteHtml = (!right && demo.note) ? `<div class="fb-note">⚠️ ${demo.note}</div>` : '';
+  const outId = `demo-out-${Date.now()}`;
+
+  // encode output untuk button
+  const b64 = btoa(unescape(encodeURIComponent(demo.out)));
+
+  fb.innerHTML = `
+    <div class="feedback ${right ? 'fb-ok' : 'fb-no'}">
+      <div class="fb-head">
+        <span class="fb-icon">${right ? '🎉' : '💡'}</span>
+        <span class="fb-title">${right ? 'Benar! Mantap!' : 'Belum Tepat!'}</span>
+      </div>
+      <div class="fb-exp">${q.exp}</div>
+      ${noteHtml}
+      <div class="demo-box">
+        <div class="demo-top">
+          <div class="demo-dots"><span></span><span></span><span></span></div>
+          <span class="demo-fn">main.cpp</span>
+          <button class="run-btn" id="run-${outId}" onclick="runDemo('${outId}','${b64}',${demo.err})">▶ Run</button>
+        </div>
+        <div class="demo-code">${codeHtml}</div>
+        <div class="demo-div"></div>
+        <div class="demo-out" id="${outId}">
+          <span class="out-label">Output</span>
+          <span style="color:var(--text2)">Klik ▶ Run...</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ================================================
+// ANIMASI RUN
+// ================================================
+function runDemo(outId, b64, isErr) {
+  const outEl = document.getElementById(outId);
+  const runBtn = document.getElementById('run-'+outId);
+  let output;
+  try { output = decodeURIComponent(escape(atob(b64))); } catch(e) { output = atob(b64); }
+
+  runBtn.disabled = true;
+  runBtn.textContent = '⏳';
+  outEl.innerHTML = `<span class="out-label">Output</span><span class="cursor"></span>`;
+
+  let i = 0;
+  const label = `<span class="out-label">Output</span>`;
+  const cls = isErr ? 'err' : '';
+  setTimeout(() => {
+    const iv = setInterval(() => {
+      if (i <= output.length) {
+        outEl.className = `demo-out ${cls}`;
+        outEl.innerHTML = `${label}<span>${esc(output.slice(0,i))}</span><span class="cursor"></span>`;
+        i++;
+      } else {
+        outEl.innerHTML = `${label}<span>${esc(output)}</span>`;
+        runBtn.textContent = '▶ Run';
+        runBtn.disabled = false;
+        clearInterval(iv);
+      }
+    }, 30);
+  }, 500);
+}
+
+// ================================================
+// NEXT QUESTION
+// ================================================
+function nextQ() {
+  curQ++;
+  curSel = null;
+  curChecked = false;
+  if (curQ >= curChapter.questions.length) {
+    showComplete();
+  } else {
+    renderQ();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+// ================================================
+// COMPLETE CHAPTER
+// ================================================
+function showComplete() {
+  chaptersCompleted[curChapter.id] = true;
+  const total = curChapter.questions.length;
+  const acc = Math.round((correctCount / total) * 100);
+
+  show('complete');
+  document.getElementById('complete-inner').innerHTML = `
+    <span class="trophy">🏆</span>
+    <div class="comp-title">Chapter Selesai!</div>
+    <div class="comp-sub">${curChapter.emoji} ${curChapter.label} — Berhasil kamu kuasai!</div>
+    <div class="score-grid">
+      <div class="sc"><div class="sv" style="color:var(--yellow)">${correctCount * 10}</div><div class="sl">XP Didapat</div></div>
+      <div class="sc"><div class="sv" style="color:var(--green)">${correctCount}/${total}</div><div class="sl">Benar</div></div>
+      <div class="sc"><div class="sv" style="color:var(--blue)">${acc}%</div><div class="sl">Akurasi</div></div>
+    </div>
+    <div class="comp-btns">
+      <button class="comp-btn retry" onclick="startChapter('${curChapter.id}')">🔄 Ulang</button>
+      <button class="comp-btn map" onclick="goMap()">🗺️ Ke Peta</button>
+    </div>`;
+
+  if (acc >= 70) spawnConfetti();
+}
+
+// ================================================
+// NAVIGATION
+// ================================================
+function show(screen) {
+  document.getElementById('screen-map').classList.toggle('hidden', screen !== 'map');
+  document.getElementById('screen-quiz').classList.toggle('hidden', screen !== 'quiz');
+  document.getElementById('screen-complete').classList.toggle('hidden', screen !== 'complete');
+}
+
+function goMap() {
+  show('map');
+  renderMap();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ================================================
+// XP TOAST
+// ================================================
+function showXpToast() {
+  const t = document.getElementById('xp-toast');
+  t.style.display = 'block';
+  t.style.animation = 'none';
+  void t.offsetWidth;
+  t.style.animation = 'xpAnim 1.4s forwards';
+  setTimeout(() => t.style.display = 'none', 1400);
+}
+
+// ================================================
+// CONFETTI
+// ================================================
+function spawnConfetti() {
+  const wrap = document.getElementById('conf-wrap');
+  wrap.innerHTML = '';
+  const colors = ['#58cc02','#ffd900','#1cb0f6','#ff4b4b','#a371f7','#ff9600','#fff'];
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'conf-p';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDuration = (1.2 + Math.random() * 2) + 's';
+    el.style.animationDelay = (Math.random() * 0.8) + 's';
+    const sz = 6 + Math.random() * 10;
+    el.style.width = sz + 'px';
+    el.style.height = sz + 'px';
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+}
+
+// ================================================
+// INIT
+// ================================================
+renderMap();
+</script>
+</body>
+</html>
